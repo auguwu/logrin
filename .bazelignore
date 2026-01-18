@@ -1,0 +1,9 @@
+.cache/
+.direnv/
+.github/
+.vscode/
+build/
+builddir/
+external/
+
+compile_commands.json

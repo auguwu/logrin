@@ -1,0 +1,59 @@
+{
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "files.associations": {
+        ".logrin-version": "plaintext",
+        ".clangd": "yaml"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/bazel-*": true,
+        "**/external": true
+    },
+
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=${workspaceFolder}/",
+        "--query-driver=**"
+    ],
+
+    "evenBetterToml.taplo.configFile.path": "taplo.toml",
+    "bazel.lsp.command": "starpls",
+    "bazel.lsp.args": ["server", "--experimental_infer_ctx_attributes", "--experimental_enable_label_completions"],
+    "bazel.buildifierFixOnFormat": true,
+    "bazel.buildifierConfigJsonPath": ".buildifier.json",
+
+    "cmake.configureArgs": ["-DVIOLET_ENABLE_TESTS:BOOL=ON", "-DVIOLET_ENABLE_ALL:BOOL=ON"],
+
+    // Nix-specific settings \\
+    "nix.enableLanguageServer": true,
+    "nix.serverSettings": {
+        "nil": {
+            "formatting": { "command": ["nix", "fmt", "--", "--"] },
+            "nix": {
+                "flake": {
+                    "autoArchive": true,
+                    "autoEvalInputs": true
+                }
+            }
+        }
+    },
+
+    "[cmake]": {
+        "editor.defaultFormatter": "ms-vscode.cmake-tools"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
+    },
+    "[nix]": {
+        "editor.defaultFormatter": "jnoortheen.nix-ide"
+    }
+}

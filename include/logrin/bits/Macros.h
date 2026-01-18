@@ -23,18 +23,4 @@
 
 #include <violet/Language/Macros.h>
 
-#undef VIOLET_API
-
-#if VIOLET_WINDOWS
-#ifdef VIOLET_DLL_EXPORT
-#define LOGRIN_API __declspec(dllexport)
-#else
-#define LOGRIN_API __declspec(dllimport)
-#endif
-#else
-#if VIOLET_HAS_ATTRIBUTE(visibility)
-#define LOGRIN_API __attribute__((visibility("default")))
-#else
-#define LOGRIN_API
-#endif
-#endif
+#define LOGRIN_API VIOLET_API

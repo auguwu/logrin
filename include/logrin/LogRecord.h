@@ -136,3 +136,25 @@ struct LOGRIN_API LogRecord final {
 };
 
 } // namespace logrin
+
+VIOLET_TO_STRING(const logrin::LogLevel&, level, {
+    switch (level) {
+    case logrin::LogLevel::Trace:
+        return "trace";
+
+    case logrin::LogLevel::Debug:
+        return "debug";
+
+    case logrin::LogLevel::Info:
+        return "info";
+
+    case logrin::LogLevel::Warning:
+        return "warning";
+
+    case logrin::LogLevel::Error:
+        return "error";
+
+    case logrin::LogLevel::Fatal:
+        return "fatal";
+    }
+});

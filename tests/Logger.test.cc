@@ -39,7 +39,7 @@ struct MockSink final: public logrin::Sink {
 struct AsyncMockSink final: public logrin::AsyncSink {
     violet::UInt32 Enqueued = 0;
 
-    void Enqueue(LogRecord) override
+    void Enqueue(const LogRecord&) override
     {
         this->Enqueued++;
     }

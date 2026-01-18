@@ -20,19 +20,3 @@
 // SOFTWARE.
 
 #pragma once
-
-#include <curl/curl.h>
-#include <logrin/AsyncSink.h>
-
-namespace logrin::sinks {
-
-struct Http final: public AsyncSink {};
-
-} // namespace logrin::sinks
-
-/*
-    virtual ~AsyncSink() = default;
-
-    virtual void Enqueue(LogRecord record) = 0;
-    virtual void Flush() {}
-*/

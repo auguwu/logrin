@@ -21,8 +21,31 @@
 
 #pragma once
 
+#include <logrin/Sink.h>
+#include <logrin/Sinks/Console/Formatter.h>
+#include <violet/Violet.h>
+
 namespace logrin::sinks {
 
-struct Console final {};
+struct Console final: public Sink {
+    VIOLET_IMPLICIT Console() noexcept = default;
+
+    template<typename T, typename... Args>
+        requires(std::is_base_of_v<console::Formatter, T> && std::is_constructible_v<T, Args...>)
+    auto WithFormatter(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>)
+    {
+        this->n_formatter = std::make_shared<T>(VIOLET_FWD(Args, args)...);
+        return *this;
+    }
+
+    /// @see logrin::Sink::Emit(const logrin::LogRecord&)
+    void Emit(const LogRecord& record) override;
+
+    /// @see logrin::Sink::Flush()
+    void Flush() noexcept override;
+
+private:
+    violet::SharedPtr<console::Formatter> n_formatter;
+};
 
 } // namespace logrin::sinks

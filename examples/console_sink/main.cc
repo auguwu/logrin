@@ -19,44 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <gtest/gtest.h>
-#include <logrin/AsyncSink.h>
 #include <logrin/LogFactory.h>
-#include <logrin/LogRecord.h>
-#include <logrin/Sink.h>
+#include <logrin/Sinks/Console.h>
+#include <logrin/Sinks/Console/Formatter/Azalia.h>
 
 using namespace logrin; // NOLINT(google-build-using-namespace)
+using namespace logrin::sinks::console::formatters; // NOLINT(google-build-using-namespace)
 
-struct MockSink final: public logrin::Sink {
-    violet::UInt32 Emitted = 0;
-
-    void Emit(const LogRecord&) override
-    {
-        this->Emitted++;
-    }
-};
-
-struct AsyncMockSink final: public logrin::AsyncSink {
-    violet::UInt32 Enqueued = 0;
-
-    void Enqueue(const LogRecord&) override
-    {
-        this->Enqueued++;
-    }
-};
-
-TEST(LogFactory, ItWorks)
+auto main() -> int
 {
-    auto* sink = new MockSink();
-    auto* async = new AsyncMockSink();
+    auto* console = new sinks::Console();
+    *console = console->WithFormatter<Azalia>();
+    LogFactory::Init({ console });
 
-    LogFactory::Init({ sink }, { async });
-
-    auto log = LogFactory::Get("logger");
-    log.Log(LogRecord::Now(LogLevel::Fatal, "systems crashed: doin ur mom").WithLogger(log.Name()));
-
-    EXPECT_EQ(sink->Emitted, 1);
-    EXPECT_EQ(async->Enqueued, 1);
+    auto log = LogFactory::Get("console_sink");
+    log.Log(LogRecord::Now(LogLevel::Info, "hello, world!").WithLogger(log.Name()).With("hello", "world"));
 
     LogFactory::Shutdown();
 }

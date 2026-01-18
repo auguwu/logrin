@@ -21,14 +21,11 @@
 
 #pragma once
 
+#include <logrin/LogRecord.h>
 #include <logrin/Sinks/Console/Formatter.h>
 #include <logrin/bits/Macros.h>
 #include <violet/Support/Terminal.h>
 #include <violet/Violet.h>
-
-namespace logrin {
-struct LogRecord;
-}
 
 namespace logrin::sinks::console::formatters {
 
@@ -39,7 +36,9 @@ namespace logrin::sinks::console::formatters {
 struct LOGRIN_API Azalia final: public Formatter {
     VIOLET_IMPLICIT Azalia() noexcept = default;
 
+    auto WithTimestampFormat(violet::Str fmt) noexcept -> Azalia&;
     auto WithPrintTimestamp(bool yes = true) noexcept -> Azalia&;
+    auto WithPrintLogger(bool yes = true) noexcept -> Azalia&;
     auto WithPrintLevel(bool yes = true) noexcept -> Azalia&;
     auto WithColors(bool yes = true) noexcept -> Azalia&;
 
@@ -51,10 +50,19 @@ private:
     constexpr static const violet::terminal::RGB kError = violet::terminal::RGB(153, 75, 104); // #994B68
     constexpr static const violet::terminal::RGB kWarn = violet::terminal::RGB(243, 243, 134); // #F3F386
     constexpr static const violet::terminal::RGB kInfo = violet::terminal::RGB(178, 157, 243); // #B29DF3
+    constexpr static const violet::terminal::RGB kGray = violet::terminal::RGB(34, 34, 34); // rgb(34,34,34)
 
+    violet::String n_timestampFormat = "%B %d, %Y - %I:%M:%S %p"; // month day, year - hour:minute:second AM/PM
     bool n_printTimestamp = true;
+    bool n_printLogger = true;
     bool n_printLevel = true;
     bool n_colors = true;
+
+    [[nodiscard]] auto printTimestamp(TimePoint ts) const noexcept -> violet::String;
+    auto printLogger(std::ostream& os, violet::String logger) const noexcept -> violet::String;
+    void printLevel(std::ostream& os, LogLevel level) const noexcept;
+    void printAttributes(
+        std::ostream& os, const violet::UnorderedMap<violet::String, AttributeValue>& attrs) const noexcept;
 };
 
 } // namespace logrin::sinks::console::formatters

@@ -25,11 +25,41 @@
 
 namespace logrin {
 
+/// An asynchronous version of [`logrin::Sink`].
+///
+/// AsyncSink represents a output stream that processes [log records][logrin::LogRecord] asynchronously,
+/// typically by enqueueing them into a background worker, thread pool, or event loop.
+///
+/// Unlike [`logrin::Sink`], implementations of `AsyncShould` should ***never block*** when
+/// calling [`logrin::AsyncSink::Enqueue`]. Instead, records should transfer ownership or copy
+/// of the log record into an internal queue and return immediately.
+///
+/// ## Safety
+/// Implementations must ensure that both `Enqueue` and `Flush` are safe to call concurrently
+/// from multiple threads.
+///
+/// Destructors must not return until all owned resources (threads, file handles, etc) have
+/// been released.
 struct AsyncSink {
+    /// Destroys the sink and releases all owned resources.
+    ///
+    /// Implementations must ensure that all background workers have terminated
+    /// and no queued records are still being processed.
     virtual ~AsyncSink() = default;
 
-    virtual void Enqueue(LogRecord record) = 0;
-    virtual void Flush() {}
+    /// Enqueues a log record for asynchronous processing.
+    ///
+    /// This function **must not block** on I/o or long-running work. The record
+    /// should be copied or moved into an internal queue for later processing.
+    ///
+    /// @param record the log record to process
+    virtual void Enqueue(const LogRecord& record) = 0;
+
+    /// Flushes all queued log records.
+    ///
+    /// Implementations should block until all previously enqueued records
+    /// have been fully processed and any buffered output has been written.
+    virtual void Flush() noexcept {}
 };
 
 } // namespace logrin

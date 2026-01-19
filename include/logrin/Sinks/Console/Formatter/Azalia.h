@@ -23,7 +23,6 @@
 
 #include <logrin/LogRecord.h>
 #include <logrin/Sinks/Console/Formatter.h>
-#include <logrin/bits/Macros.h>
 #include <violet/Support/Terminal.h>
 #include <violet/Violet.h>
 
@@ -33,7 +32,7 @@ namespace logrin::sinks::console::formatters {
 ///
 /// See:
 /// <https://github.com/Noelware/azalia/blob/61ab79859a014cd7c2c45bbdd9d4925a6a896bc0/crates/log/src/writers/default.rs>
-struct LOGRIN_API Azalia final: public Formatter {
+struct VIOLET_API Azalia final: public Formatter {
     VIOLET_IMPLICIT Azalia() noexcept = default;
 
     auto WithTimestampFormat(violet::Str fmt) noexcept -> Azalia&;
@@ -45,12 +44,7 @@ struct LOGRIN_API Azalia final: public Formatter {
     [[nodiscard]] auto Format(const LogRecord& record) const noexcept -> violet::String override;
 
 private:
-    constexpr static const violet::terminal::RGB kTrace = violet::terminal::RGB(163, 182, 138); // #A3B68A
-    constexpr static const violet::terminal::RGB kDebug = violet::terminal::RGB(148, 224, 232); // #94E0E8
-    constexpr static const violet::terminal::RGB kError = violet::terminal::RGB(153, 75, 104); // #994B68
-    constexpr static const violet::terminal::RGB kWarn = violet::terminal::RGB(243, 243, 134); // #F3F386
-    constexpr static const violet::terminal::RGB kInfo = violet::terminal::RGB(178, 157, 243); // #B29DF3
-    constexpr static const violet::terminal::RGB kGray = violet::terminal::RGB(34, 34, 34); // rgb(34,34,34)
+    constexpr static const violet::terminal::Style kGray = violet::terminal::Style::RGB(34, 34, 34); // rgb(34,34,34)
 
     violet::String n_timestampFormat = "%B %d, %Y - %I:%M:%S %p"; // month day, year - hour:minute:second AM/PM
     bool n_printTimestamp = true;
@@ -59,7 +53,6 @@ private:
     bool n_colors = true;
 
     [[nodiscard]] auto printTimestamp(TimePoint ts) const noexcept -> violet::String;
-    auto printLogger(std::ostream& os, violet::String logger) const noexcept -> violet::String;
     void printLevel(std::ostream& os, LogLevel level) const noexcept;
     void printAttributes(
         std::ostream& os, const violet::UnorderedMap<violet::String, AttributeValue>& attrs) const noexcept;

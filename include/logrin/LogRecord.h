@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include "bits/Macros.h"
-
 #include <chrono>
 #include <violet/Violet.h>
 
@@ -46,7 +44,7 @@ enum struct LogLevel : violet::UInt8 {
 /// AttributeValue represents a small, closed set of value types that can be attached
 /// to log records as structured metadata. It is designed to be type-safe, allocation-aware,
 /// and RTTI-free.
-struct LOGRIN_API AttributeValue final {
+struct VIOLET_API AttributeValue final {
     /// Constructs an empty attribute value.
     ///
     /// The resulting value holds no data (`std::monostate`).
@@ -79,7 +77,8 @@ struct LOGRIN_API AttributeValue final {
     /// Constructs a string attribute value.
     ///
     /// Ownership of the string is taken by value.
-    constexpr VIOLET_IMPLICIT AttributeValue(violet::String value) noexcept
+    template<std::convertible_to<violet::String> T>
+    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(value)
     {
     }
@@ -109,15 +108,17 @@ private:
 /// This struct represents a single logging event produced by a `Logger` and
 /// delivered to one or more sinks. It contains both unstructured text and
 /// structured key-value fields for rich diagnostics.
-struct LOGRIN_API LogRecord final {
+struct VIOLET_API LogRecord final {
     TimePoint Timestamp; ///< time point at which this log record was created
     LogLevel Level; ///< severity of the log event.
     violet::Str Message; ///< primary log message
     violet::UnorderedMap<violet::String, AttributeValue> Fields; ///< structured key-value pairs attached to the record
     violet::Str Logger; ///< name of the logger that emitted this record
+    std::source_location Location; ///< source location where this log was emitted
 
     /// Constructs a [`LogRecord`] that sets the timestamp
-    static auto Now(LogLevel level, violet::Str message) noexcept -> LogRecord;
+    static auto Now(LogLevel level, violet::Str message,
+        const std::source_location& loc = std::source_location::current()) noexcept -> LogRecord;
 
     /// Sets the `logger` field.
     /// @param name the logger's name
@@ -126,11 +127,9 @@ struct LOGRIN_API LogRecord final {
     /// Emplace a new field into this log record.
     /// @param name field name
     /// @param value field value
-    template<typename T>
-        requires(std::is_constructible_v<AttributeValue, T>)
-    auto With(violet::Str name, T value) noexcept -> LogRecord&
+    auto With(violet::Str name, AttributeValue&& value) noexcept -> LogRecord&
     {
-        this->Fields.emplace(std::make_pair(name, value));
+        this->Fields.emplace(std::make_pair(violet::String(name), VIOLET_MOVE(value)));
         return *this;
     }
 };
@@ -158,3 +157,11 @@ VIOLET_TO_STRING(const logrin::LogLevel&, level, {
         return "fatal";
     }
 });
+
+/**
+ * @macro FIELD(name, value)
+ *
+ * This macro is meant to be inside of [`logrin::Logger::Log`] to make emplacing
+ * an attribute field in a logger concise and easy.
+ */
+#define FIELD(name, value) ::std::make_pair<::violet::String, ::logrin::AttributeValue>(name, value)

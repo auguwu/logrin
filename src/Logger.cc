@@ -24,17 +24,39 @@
 #include <logrin/Sink.h>
 
 using logrin::AsyncSink;
+using logrin::LogEntry;
 using logrin::Logger;
 using logrin::Sink;
+
 using violet::Str;
 
-Logger::Logger(Str name) noexcept
-    : n_name(name)
+LogEntry::LogEntry(Logger* logger, LogRecord record, bool emit) noexcept
+    : n_record(VIOLET_MOVE(record))
+    , n_parent(logger)
+    , n_emit(emit)
 {
 }
 
-Logger::Logger(Str name, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks) noexcept
-    : Logger(name)
+LogEntry::~LogEntry()
+{
+    if (this->n_emit && this->n_parent != nullptr) {
+        for (const auto& sink: this->n_parent->Sinks()) {
+            sink->Emit(this->n_record);
+        }
+
+        for (const auto& sink: this->n_parent->AsyncSinks()) {
+            sink->Enqueue(this->n_record);
+        }
+
+        this->n_emit = false;
+        this->n_parent = nullptr;
+    }
+}
+
+Logger::Logger(
+    Str name, LogLevel level, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks) noexcept
+    : n_level(level)
+    , n_name(name)
 {
     for (const auto& sink: sinks) {
         this->n_sinks.emplace_back(sink);
@@ -45,7 +67,7 @@ Logger::Logger(Str name, std::initializer_list<Sink*> sinks, std::initializer_li
     }
 }
 
-Logger::~Logger()
+Logger::~Logger() noexcept
 {
     this->flush();
 }
@@ -71,18 +93,13 @@ auto Logger::Name() const noexcept -> violet::Str
     return this->n_name;
 }
 
-void Logger::Log(const LogRecord& record)
+auto Logger::Log(LogRecord record) noexcept -> LogEntry
 {
-    for (const auto& sink: this->n_sinks) {
-        sink->Emit(record);
-    }
-
-    for (const auto& sink: this->n_asyncSinks) {
-        sink->Enqueue(record);
-    }
+    record.Logger = this->Name();
+    return LogEntry(this, record);
 }
 
-void Logger::flush()
+void Logger::flush() noexcept
 {
     for (const auto& sink: this->n_sinks)
         sink->Flush();

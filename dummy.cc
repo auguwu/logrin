@@ -19,8 +19,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
 #include <violet/Language/Macros.h>
 
-#define LOGRIN_API VIOLET_API
+namespace {
+
+#if defined(VIOLET_CLANG) || defined(VIOLET_GCC)
+#if VIOLET_HAS_ATTRIBUTE(visibility)
+#define LOGRIN_HIDE __attribute__((visibility("hidden")))
+#endif
+
+VIOLET_DIAGNOSTIC_PUSH
+VIOLET_DIAGNOSTIC_IGNORE("-Wunused-function")
+
+#elif defined(VIOLET_MSVC)
+#define LOGRIN_HIDE
+#endif
+
+LOGRIN_HIDE void __dummy()
+{
+    // this will be hidden by the linker, this is force Bazel
+    // to build `//:logrin` as both a dynamic and static library
+}
+
+#if defined(VIOLET_CLANG) || defined(VIOLET_GCC)
+VIOLET_DIAGNOSTIC_POP
+#endif
+
+} // namespace

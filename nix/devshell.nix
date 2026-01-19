@@ -46,6 +46,7 @@
   ## used for devshell
   bash,
   ripgrep,
+  nodejs_24,
 }: let
   darwinPackages = [apple-sdk_15];
   linuxPackages = [valgrind];
@@ -84,6 +85,7 @@
 
       bazel-buildtools
       pkg-config
+      nodejs_24
       python3
 
       # build systems (we support Bazel, CMake, and Meson)

@@ -20,11 +20,3 @@
 // SOFTWARE.
 
 #pragma once
-
-#include <logrin/AsyncSink.h>
-
-namespace logrin::sinks {
-
-struct OpenTelemetry final: public AsyncSink {};
-
-} // namespace logrin::sinks

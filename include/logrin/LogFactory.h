@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include "bits/Macros.h"
-
 #include <initializer_list>
 #include <logrin/Logger.h>
 #include <violet/Violet.h>
@@ -32,15 +30,18 @@ namespace logrin {
 struct Sink;
 struct AsyncSink;
 
-struct LOGRIN_API LogFactory final {
+struct VIOLET_API LogFactory final {
     static auto Get(violet::Str name) noexcept -> Logger;
-    static void Init(std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+    static void Init(LogLevel level, std::initializer_list<Sink*> sinks = {},
+        std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+
     static void Shutdown() noexcept;
 
 private:
     VIOLET_EXPLICIT LogFactory(
-        std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+        LogLevel level, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
 
+    LogLevel n_level;
     violet::Vec<violet::SharedPtr<Sink>> n_sinks;
     violet::Vec<violet::SharedPtr<AsyncSink>> n_asyncSinks;
     violet::UnorderedMap<violet::String, Logger> n_loggers;

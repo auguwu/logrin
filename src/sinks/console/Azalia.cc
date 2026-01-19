@@ -21,10 +21,69 @@
 
 #include <logrin/Sinks/Console/Formatter/Azalia.h>
 
+#include <algorithm>
+
 using logrin::AttributeValue;
+using logrin::LogLevel;
 using logrin::sinks::console::formatters::Azalia;
+
+using violet::String;
 using violet::terminal::Style;
 using violet::terminal::Styled;
+
+namespace {
+
+constexpr const violet::terminal::Style kTrace = violet::terminal::Style::RGB(163, 182, 138); // #A3B68A
+constexpr const violet::terminal::Style kDebug = violet::terminal::Style::RGB(148, 224, 232); // #94E0E8
+constexpr const violet::terminal::Style kError = violet::terminal::Style::RGB(153, 75, 104); // #994B68
+constexpr const violet::terminal::Style kWarn = violet::terminal::Style::RGB(243, 243, 134); // #F3F386
+constexpr const violet::terminal::Style kInfo = violet::terminal::Style::RGB(178, 157, 243); // #B29DF3
+
+constexpr auto levelToStyle(LogLevel level) -> Style
+{
+    switch (level) {
+    case LogLevel::Trace:
+        return kTrace;
+
+    case LogLevel::Debug:
+        return kDebug;
+
+    case LogLevel::Info:
+        return kInfo;
+
+    case LogLevel::Warning:
+        return kWarn;
+
+    case LogLevel::Error:
+        return kError;
+
+    case LogLevel::Fatal: {
+        auto error = kError;
+        return error.Bold();
+    } break;
+    }
+}
+
+constexpr void writeAttrValue(std::ostream& os, const AttributeValue& value) noexcept
+{
+    if (value.Is<std::monostate>()) {
+        os << "{null}";
+    } else if (value.Is<bool>()) {
+        os << std::boolalpha << *value.As<bool>();
+    } else if (value.Is<violet::Int64>()) {
+        os << *value.As<violet::Int64>();
+    } else if (value.Is<violet::UInt64>()) {
+        os << *value.As<violet::UInt64>();
+    } else if (value.Is<double>()) {
+        os << *value.As<double>();
+    } else if (value.Is<String>()) {
+        os << '"' << *value.As<String>() << '"';
+    } else {
+        VIOLET_UNREACHABLE_WITH("reached unknown state");
+    }
+}
+
+} // namespace
 
 auto Azalia::WithTimestampFormat(violet::Str fmt) noexcept -> Azalia&
 {
@@ -68,15 +127,22 @@ auto Azalia::Format(const LogRecord& record) const noexcept -> violet::String
         os << ' ';
     }
 
-    // if (this->n_printLogger) {
-    //     os << this->printLogger(os, violet::String(record.Logger));
-    // }
+    if (this->n_printLogger) {
+        if (this->n_colors) {
+            os << Styled<String>(std::format("[{}]", record.Logger), kGray).Paint();
+        } else {
+            os << '[' << record.Logger << ']';
+        }
+
+        os << ' ';
+    }
 
     os << record.Message;
 
-    // if (!record.Fields.empty()) {
-    //     os << "    " << this->printAttributes(os, record.Fields);
-    // }
+    if (!record.Fields.empty()) {
+        os << "    ";
+        this->printAttributes(os, record.Fields);
+    }
 
     return os.str();
 }
@@ -84,10 +150,6 @@ auto Azalia::Format(const LogRecord& record) const noexcept -> violet::String
 auto Azalia::printTimestamp(TimePoint ts) const noexcept -> violet::String
 {
     std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::seconds>(ts));
-    auto [lBracket, rBracket]
-        = std::make_pair(this->n_colors ? Styled<violet::String>("[", Style::RGB(134, 134, 134)).Paint() : "[",
-            this->n_colors ? Styled<violet::String>("]", Style::RGB(134, 134, 134)).Paint() : "]");
-
     std::tm tm = *std::localtime(&time);
 
     char buf[64];
@@ -95,13 +157,39 @@ auto Azalia::printTimestamp(TimePoint ts) const noexcept -> violet::String
         buf[0] = '\0';
     }
 
-    return std::format(
-        "{}{}{}", lBracket, Styled<violet::String>(violet::String(buf), Style::RGB(134, 134, 134)).Paint(), rBracket);
+    if (!this->n_colors) {
+        return std::format("[{}]", buf);
+    }
+
+    return Styled<String>(std::format("[{}]", buf), kGray).Paint();
 }
 
-void Azalia::printLevel(std::ostream& os, LogLevel level) const noexcept {}
+void Azalia::printLevel(std::ostream& os, LogLevel level) const noexcept
+{
+    auto levelStr = violet::ToString(level);
+    std::ranges::transform(levelStr, levelStr.begin(), [](unsigned char ch) -> int { return std::toupper(ch); });
+
+    if (this->n_colors) {
+        os << Styled<String>(levelStr, levelToStyle(level)).Paint();
+    } else {
+        os << levelStr;
+    }
+}
 
 void Azalia::printAttributes(
     std::ostream& os, const violet::UnorderedMap<violet::String, AttributeValue>& attrs) const noexcept
 {
+    for (const auto& [name, field]: attrs) {
+        if (!this->n_colors) {
+            os << '[' << name << '=';
+            writeAttrValue(os, field);
+            os << "] ";
+        } else {
+            std::stringstream oss;
+            writeAttrValue(oss, field);
+
+            constexpr auto gray = Style::RGB<34, 34, 34>().Bold().Italic();
+            os << Styled<String>(std::format("[{}={}] ", name, oss.str()), gray).Paint();
+        }
+    }
 }

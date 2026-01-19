@@ -8,49 +8,60 @@
 ## Features
 - **Structured Logging**
     - key/value pairs attached to log records
-    - thread-local and task-local context propagation
-    - inclusion of span/trace IDs for observability
+    <!-- - thread-local and task-local context propagation
+    - inclusion of span/trace IDs for observability -->
 - **Multiple Backends / Sinks**
     - Console (human-readable, prettified)
     - JSON logs (for structured output)
-    - OpenTelemetry support (tracing, logs)
-    - File sinks with rotation and retention
+    <!-- - OpenTelemetry support (tracing, logs)
+    - File sinks with rotation and retention -->
     - Custom sinks via `logrin::Sink`
 - **Asynchronous first**
-    - Fully compatible with `kj::Promise`
-    - Non-blocking log emission
+    <!-- - Fully compatible with `kj::Promise` -->
+    - Non-blocking log emission with `logrin::AsyncSink`
     - Optional batching for high-performance output
 - **Extensible**
   - Easily add new sinks or custom log processing
-  - Minimal dependencies, header-only optional
+  - Minimal dependencies
   - No RTTI or exceptions required (exception-free mode supported)
 
 ## Examples
 ### Single-logger construction
 ```cpp
+#include <logrin/Sinks/Console/Formatter/Json.h>
 #include <logrin/Sinks/Console.h>
 #include <logrin/Logger.h>
 
-auto logger = logrin::Logger::Create("some logger here");
-logger.AddSink<logrin::sinks::Console>(logrin::sinks::ConsoleOptions {
-    .Timestamp = true,
-    .SourceInformation = true
-});
+using logrin::sinks::Console;
+using logrin::sinks::console::formatters::Json;
+
+logrin::Logger log("a logger");
+log.AddSink(Console{}.WithFormatter<Json>());
 
 logger.Info("logrin was initialized");
-logger.Debug("disk is almost full").With("disk", "/dev/sda1");
+logger.Debug("disk is almost full", FIELD("disk", "/dev/sda1"));
 ```
 
 ### Logging factory
 ```cpp
+#include <logrin/Sinks/Console/Formatter/Json.h>
 #include <logrin/Sinks/Console.h>
 #include <logrin/LogFactory.h>
 
-logrin::LogFactory::Initialize({
-    new logrin::sinks::Console()
+using logrin::sinks::console::formatters::Json;
+
+auto* console = new logrin::sinks::Console();
+console->WithFormatter<Json>();
+
+logrin::LogFactory::Init({
+    // the factory will own this allocation and on shutdown, it'll flush
+    // any output and deallocate the memory
+    console
 });
 
-LOG_INFO("some logger here", "we are doing things").With("things", true);
+auto log = logrin::LogFactory::Get("a logger");
+LOG_INFO(log, "logrin was initialized");
+LOG_DEBUG(log, "disk is almost full", FIELD("disk", "/dev/sda1"));
 ```
 
 ## License

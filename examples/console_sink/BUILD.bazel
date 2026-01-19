@@ -24,10 +24,11 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 cc_binary(
     name = "console_sink",
     srcs = ["main.cc"],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     deps = [
         "//src:log_factory",
         "//src/sinks:console",
         "//src/sinks/console:azalia",
+        "//src/sinks/console:json",
     ],
 )

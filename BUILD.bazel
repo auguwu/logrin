@@ -37,6 +37,8 @@ cc_library(
 # Add a "uber" library that combines everything into a single library
 logrin_cc_library(
     name = "logrin",
+    srcs = ["dummy.cc"],
+    linkstatic = 0,
     visibility = ["//visibility:public"],
     deps = [
         "//src:async_sink",
@@ -47,6 +49,7 @@ logrin_cc_library(
         "//src/sinks:console",
         "//src/sinks/console:azalia",
         "//src/sinks/console:json",
+        "@violet//violet:macros",
     ] + select({
         "//bazel/flags:http_sink_enabled": ["//src/sinks:http"],
         "//conditions:default": [],

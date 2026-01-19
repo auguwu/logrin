@@ -27,7 +27,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:log_record",
-        "//src:macros",
         "@violet//violet",
     ],
 )
@@ -40,7 +39,6 @@ cc_library(
     deps = [
         ":formatter",
         "//src:log_record",
-        "//src:macros",
         "@violet//violet",
         "@violet//violet/support:terminal",
     ],
@@ -54,8 +52,8 @@ cc_library(
     deps = [
         ":formatter",
         "//src:log_record",
-        "//src:macros",
         "@nlohmann_json//:json",
         "@violet//violet",
+        "@violet//violet/support:demangle",
     ],
 )

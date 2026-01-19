@@ -22,7 +22,6 @@
 #pragma once
 
 #include <logrin/Sinks/Console/Formatter.h>
-#include <logrin/bits/Macros.h>
 #include <nlohmann/json.hpp>
 #include <violet/Violet.h>
 
@@ -32,7 +31,7 @@ struct LogRecord;
 
 namespace logrin::sinks::console::formatters {
 
-struct LOGRIN_API Json final: public Formatter {
+struct VIOLET_API Json final: public Formatter {
     VIOLET_IMPLICIT Json() noexcept = default;
 
     auto WithPretty(bool yes = true) noexcept -> Json&;

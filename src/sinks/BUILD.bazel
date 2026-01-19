@@ -27,7 +27,6 @@ cc_library(
     hdrs = ["//include/logrin/Sinks:Console.h"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src:macros",
         "//src:sink",
         "//src/sinks/console:formatter",
         "@violet//violet",
@@ -41,7 +40,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:async_sink",
-        "//src:macros",
         "@curl",
         "@violet//violet",
     ],
@@ -54,7 +52,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:async_sink",
-        "//src:macros",
         "@violet//violet",
     ],
 )

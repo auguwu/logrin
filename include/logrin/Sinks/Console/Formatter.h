@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <logrin/bits/Macros.h>
 #include <violet/Violet.h>
 
 namespace logrin {
@@ -30,7 +29,7 @@ struct LogRecord;
 
 namespace logrin::sinks::console {
 
-struct LOGRIN_API Formatter {
+struct VIOLET_API Formatter {
     virtual ~Formatter() = default;
 
     [[nodiscard]] virtual auto Format(const LogRecord& record) const noexcept -> violet::String = 0;

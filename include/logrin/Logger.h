@@ -21,25 +21,52 @@
 
 #pragma once
 
-#include "bits/Macros.h"
-
+#include <logrin/LogRecord.h>
 #include <violet/Violet.h>
 
 namespace logrin {
 
 struct Sink;
 struct AsyncSink;
-struct LogRecord;
+struct Logger;
 
-struct LOGRIN_API Logger final {
+struct LogEntry final {
+    VIOLET_DISALLOW_CONSTEXPR_CONSTRUCTOR(LogEntry);
+    VIOLET_DISALLOW_COPY_AND_MOVE(LogEntry);
+
+    ~LogEntry();
+
+    template<typename T>
+        requires(std::is_constructible_v<AttributeValue, T>)
+    auto With(violet::Str name, T value) noexcept -> LogEntry&
+    {
+        this->n_record = this->n_record.With(name, value);
+        return *this;
+    }
+
+private:
+    friend struct Logger;
+
+    VIOLET_EXPLICIT LogEntry(Logger* logger, LogRecord record, bool emit = true) noexcept;
+
+    LogRecord n_record; ///< the record that this entry is used for
+    Logger* n_parent; ///< pointer to the parent logger
+    bool n_emit = false;
+};
+
+struct VIOLET_API Logger final {
     VIOLET_DISALLOW_CONSTRUCTOR(Logger);
-    VIOLET_IMPLICIT_COPY_AND_MOVE(Logger);
+    ~Logger() noexcept;
 
-    VIOLET_IMPLICIT Logger(violet::Str name) noexcept;
-    VIOLET_IMPLICIT Logger(violet::Str name, std::initializer_list<Sink*> sinks,
+    VIOLET_IMPLICIT Logger(violet::Str name, LogLevel level, std::initializer_list<Sink*> sinks = {},
         std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
 
-    ~Logger();
+    [[nodiscard]] constexpr auto Enabled(LogLevel level) const noexcept -> bool
+    {
+        return level >= this->n_level;
+    }
+
+    auto WithName(violet::Str name) noexcept -> Logger&;
 
     template<typename SinkT>
         requires(!std::is_abstract_v<SinkT> && std::is_base_of_v<Sink, SinkT>)
@@ -57,6 +84,14 @@ struct LOGRIN_API Logger final {
         return *this;
     }
 
+    template<typename AsyncSinkT>
+        requires(!std::is_abstract_v<AsyncSinkT> && std::is_base_of_v<Sink, AsyncSinkT>)
+    auto AddAsyncSink(AsyncSinkT* sink) noexcept -> Logger&
+    {
+        this->n_asyncSinks.emplace_back(sink);
+        return *this;
+    }
+
     template<typename AsyncSinkT, typename... Args>
         requires(!std::is_abstract_v<AsyncSinkT> && std::is_base_of_v<AsyncSink, AsyncSinkT>)
     auto AddAsyncSink(Args&&... args) noexcept(std::is_constructible_v<AsyncSinkT, Args...>) -> Logger&
@@ -65,29 +100,68 @@ struct LOGRIN_API Logger final {
         return *this;
     }
 
-    template<typename AsyncSinkT>
-        requires(!std::is_abstract_v<AsyncSinkT> && std::is_base_of_v<AsyncSink, AsyncSinkT>)
-    auto AddAsyncSink(AsyncSinkT* sink) noexcept -> Logger&
-    {
-        this->n_asyncSinks.emplace_back(sink);
-        return *this;
-    }
-
-    auto WithName(violet::Str name) noexcept -> Logger&;
     [[nodiscard]] auto Sinks() const noexcept -> violet::Span<const violet::SharedPtr<Sink>>;
     [[nodiscard]] auto AsyncSinks() const noexcept -> violet::Span<const violet::SharedPtr<AsyncSink>>;
     [[nodiscard]] auto Name() const noexcept -> violet::Str;
 
-    void Log(const LogRecord& record);
+    [[nodiscard]] auto Log(LogRecord record) noexcept -> LogEntry;
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Log(LogLevel level, Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept
+        -> LogEntry
+    {
+        if (!this->Enabled(level)) {
+            return LogEntry(nullptr, LogRecord{}, false);
+        }
+
+        return this->Log(LogRecord::Now(level, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Trace(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Trace, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Debug(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Debug, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Info(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Info, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Warn(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Warning, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Error(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Error, VIOLET_FWD(Msg, message), loc));
+    }
+
+    template<std::convertible_to<violet::Str> Msg>
+    auto Fatal(Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept -> LogEntry
+    {
+        return this->Log(LogRecord::Now(LogLevel::Fatal, VIOLET_FWD(Msg, message), loc));
+    }
 
 private:
     friend struct LogFactory;
 
+    LogLevel n_level;
     violet::String n_name;
     violet::Vec<violet::SharedPtr<Sink>> n_sinks;
     violet::Vec<violet::SharedPtr<AsyncSink>> n_asyncSinks;
 
-    void flush();
+    void flush() noexcept;
 };
 
 } // namespace logrin

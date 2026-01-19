@@ -27,7 +27,7 @@
 
 namespace logrin::sinks {
 
-struct Console final: public Sink {
+struct VIOLET_API Console final: public Sink {
     VIOLET_IMPLICIT Console() noexcept = default;
 
     template<typename T, typename... Args>

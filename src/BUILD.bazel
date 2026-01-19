@@ -22,19 +22,11 @@
 load("//bazel:cc.bzl", "cc_library")
 
 cc_library(
-    name = "macros",
-    hdrs = ["//include/logrin/bits:Macros.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["@violet//violet:macros"],
-)
-
-cc_library(
     name = "log_record",
     srcs = ["LogRecord.cc"],
     hdrs = ["//include/logrin:LogRecord.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":macros",
         "@violet//violet",
     ],
 )
@@ -45,7 +37,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":log_record",
-        ":macros",
         "@violet//violet",
     ],
 )
@@ -56,7 +47,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":log_record",
-        ":macros",
         "@violet//violet",
     ],
 )
@@ -68,7 +58,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":logger",
-        ":macros",
         "@violet//violet",
     ],
 )
@@ -80,7 +69,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":async_sink",
-        ":macros",
         ":sink",
         "@violet//violet",
     ],

@@ -22,6 +22,7 @@
 #include <logrin/LogFactory.h>
 #include <logrin/Sinks/Console.h>
 #include <logrin/Sinks/Console/Formatter/Azalia.h>
+#include <logrin/Sinks/Console/Formatter/Json.h>
 
 using namespace logrin; // NOLINT(google-build-using-namespace)
 using namespace logrin::sinks::console::formatters; // NOLINT(google-build-using-namespace)
@@ -30,10 +31,16 @@ auto main() -> int
 {
     auto* console = new sinks::Console();
     *console = console->WithFormatter<Azalia>();
-    LogFactory::Init({ console });
+
+    auto* console2 = new sinks::Console();
+    *console2 = console2->WithFormatter<Json>();
+
+    LogFactory::Init(LogLevel::Info, { console, console2 });
 
     auto log = LogFactory::Get("console_sink");
-    log.Log(LogRecord::Now(LogLevel::Info, "hello, world!").WithLogger(log.Name()).With("hello", "world"));
+    log.Info("Hello, world! (this should be emitted right away)").With("disk", "/dev/sda1");
+
+    auto number_67 = log.Error("this should be emitted last? 67!! haha!! funn number!!!! im not funny...");
 
     LogFactory::Shutdown();
 }

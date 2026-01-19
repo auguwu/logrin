@@ -34,9 +34,9 @@ auto now() noexcept -> logrin::TimePoint
 
 } // namespace
 
-auto LogRecord::Now(LogLevel level, Str message) noexcept -> LogRecord
+auto LogRecord::Now(LogLevel level, Str message, const std::source_location& loc) noexcept -> LogRecord
 {
-    return { .Timestamp = now(), .Level = level, .Message = message };
+    return { .Timestamp = now(), .Level = level, .Message = message, .Location = loc };
 }
 
 auto LogRecord::WithLogger(Str name) noexcept -> LogRecord&

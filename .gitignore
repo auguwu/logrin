@@ -192,6 +192,7 @@ build.ninja
 **/.usr.bazelrc
 
 .bazeldist/
+external/
 .cache/
 .direnv/
 build/

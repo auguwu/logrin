@@ -1,0 +1,168 @@
+# 🐻‍❄️🏳️‍⚧️ Logrin: Modern, async-aware logging framework for C++20
+# Copyright (c) 2026 Noel Towa <cutie@floofy.dev>, et al.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+name: CI
+on:
+    workflow_dispatch: {}
+    push:
+        branches:
+            - 'issues/gh-**'
+            - 'feat/**'
+            - master
+
+        paths-ignore:
+            - '.github/**'
+            - '.vscode/**'
+            - '.ci/**'
+            - 'nix/**'
+
+            - renovate.json
+            - flake.lock
+            - .*ignore
+            - .clangd
+            - .envrc
+    pull_request:
+        types: [opened, synchronize]
+        branches:
+            - 'issues/gh-**'
+            - 'feat/**'
+            - master
+        paths:
+            - '**'
+permissions:
+    contents: read
+    checks: write
+concurrency:
+    group: ${{github.workflow}}-${{github.ref}}
+    cancel-in-progress: true
+jobs:
+    bazel-linux:
+        name: "Bazel / Linux [${{matrix.compiler}} / Bazel ${{matrix.bazel-version}} (C++${{matrix.cxx-standard}})]"
+        runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+        strategy:
+            fail-fast: false
+            matrix:
+                compiler: [gcc-15, gcc-14, clang-21, clang-20]
+                bazel-version: ["7.7.1", "8.5.1"]
+                cxx-standard: ["26", "23", "20"]
+                include:
+                    - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: ""}
+                    - {compiler: clang-20, cc: "clang-20", cxx: "clang++-20", flags: ""}
+                    - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
+                    - {compiler: gcc-14, cc: "gcc", cxx: "g++", flags: ""}
+        env:
+            USE_BAZEL_VERSION: ${{matrix.bazel-version}}
+            BAZELFLAGS: "--config=ci --cxxopt=-std=c++${{matrix.cxx-standard}} --host_cxxopt=-std=c++${{matrix.cxx-standard}} --client_env=BAZEL_CXXOPTS=-std=c++${{matrix.cxx-standard}} --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: actions/cache@v5
+              with:
+                key: bazel-cache-linux-${{matrix.compiler}}-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
+                restore-keys: bazel-cache-linux-${{matrix.compiler}}-
+                path: |
+                    ~/.cache/bazel
+                    ~/.cache/bazelisk
+
+            - run: bazel build ${{env.BAZELFLAGS}} //...
+            - run: bazel test ${{env.BAZELFLAGS}} //...
+    asan-linux:
+        name: "Bazel / Linux [${{matrix.compiler}} (ASan)]"
+        runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+        strategy:
+            fail-fast: false
+            matrix:
+                compiler: [gcc-15, clang-21]
+                include:
+                    - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: " --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-21"}
+                    - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
+        env:
+            USE_BAZEL_VERSION: "8.5.1"
+            BAZELFLAGS: "--config=ci --config=asan --cxxopt=-std=c++26 --host_cxxopt=-std=c++26 --client_env=BAZEL_CXXOPTS=-std=c++26 --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: actions/cache@v5
+              with:
+                key: bazel-cache-linux-${{matrix.compiler}}-asan-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
+                restore-keys: bazel-cache-linux-${{matrix.compiler}}-asan-
+                path: |
+                    ~/.cache/bazel
+                    ~/.cache/bazelisk
+
+            - run: bazel build ${{env.BAZELFLAGS}} //...
+            - run: bazel test ${{env.BAZELFLAGS}} //...
+    ubsan-linux:
+        name: "Bazel / Linux [${{matrix.compiler}} (UBSan)]"
+        runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+        strategy:
+            fail-fast: false
+            matrix:
+                compiler: [gcc-15, clang-21]
+                include:
+                    - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: "--test_env=UBSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-21"}
+                    - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
+        env:
+            USE_BAZEL_VERSION: "8.5.1"
+            BAZELFLAGS: "--config=ci --config=ubsan --cxxopt=-std=c++26 --host_cxxopt=-std=c++26 --client_env=BAZEL_CXXOPTS=-std=c++26 --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: actions/cache@v5
+              with:
+                key: bazel-cache-linux-${{matrix.compiler}}-ubsan-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
+                restore-keys: bazel-cache-linux-${{matrix.compiler}}-ubsan-
+                path: |
+                    ~/.cache/bazel
+                    ~/.cache/bazelisk
+
+            - run: bazel build ${{env.BAZELFLAGS}} //...
+            - run: bazel test ${{env.BAZELFLAGS}} //...
+    tsan-linux:
+        name: "Bazel / Linux [${{matrix.compiler}} (TSan)]"
+        runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+        strategy:
+            fail-fast: false
+            matrix:
+                compiler: [gcc-15, clang-21]
+                include:
+                    - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: "--test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-21"}
+                    - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
+        env:
+            USE_BAZEL_VERSION: "8.5.1"
+            BAZELFLAGS: "--config=ci --config=tsan --cxxopt=-std=c++26 --host_cxxopt=-std=c++26 --client_env=BAZEL_CXXOPTS=-std=c++26 --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: actions/cache@v5
+              with:
+                key: bazel-cache-linux-${{matrix.compiler}}-tsan-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
+                restore-keys: bazel-cache-linux-${{matrix.compiler}}-tsan-
+                path: |
+                    ~/.cache/bazel
+                    ~/.cache/bazelisk
+
+            - run: bazel build ${{env.BAZELFLAGS}} //...
+            - run: bazel test ${{env.BAZELFLAGS}} //...

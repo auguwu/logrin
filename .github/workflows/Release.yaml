@@ -18,3 +18,24 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+name: Release
+on:
+    push:
+        tags:
+            - '[0-9]+.[0-9]+(.[0-9]+)?'
+jobs:
+    bazeldist:
+        name: "Bazel: Distribution"
+        runs-on: ubuntu-latest
+        container:
+            # TODO(@auguwu/Noel): switch to `cr.noelware.cloud/private/ci/base:latest` once avaliable
+            image: ghcr.io/noelware/violet/ci:clang-21
+        steps:
+            - uses: actions/checkout@v6
+            - run: ./tools/bazeldist
+            - name: push to release
+              uses: softprops/action-gh-release@v2
+              if: github.ref_type == 'tag'
+              with:
+                files: .bazeldist/dist.tgz

@@ -85,7 +85,7 @@ struct VIOLET_API Logger final {
     }
 
     template<typename AsyncSinkT>
-        requires(!std::is_abstract_v<AsyncSinkT> && std::is_base_of_v<Sink, AsyncSinkT>)
+        requires(!std::is_abstract_v<AsyncSinkT> && std::is_base_of_v<AsyncSink, AsyncSinkT>)
     auto AddAsyncSink(AsyncSinkT* sink) noexcept -> Logger&
     {
         this->n_asyncSinks.emplace_back(sink);
@@ -104,7 +104,7 @@ struct VIOLET_API Logger final {
     [[nodiscard]] auto AsyncSinks() const noexcept -> violet::Span<const violet::SharedPtr<AsyncSink>>;
     [[nodiscard]] auto Name() const noexcept -> violet::Str;
 
-    [[nodiscard]] auto Log(LogRecord record) noexcept -> LogEntry;
+    auto Log(LogRecord record) noexcept -> LogEntry;
 
     template<std::convertible_to<violet::Str> Msg>
     auto Log(LogLevel level, Msg&& message, const std::source_location& loc = std::source_location::current()) noexcept

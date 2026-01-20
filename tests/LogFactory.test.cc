@@ -50,10 +50,10 @@ TEST(LogFactory, ItWorks)
     auto* sink = new MockSink();
     auto* async = new AsyncMockSink();
 
-    LogFactory::Init({ sink }, { async });
+    LogFactory::Init(LogLevel::Trace, { sink }, { async });
 
     auto log = LogFactory::Get("logger");
-    log.Log(LogRecord::Now(LogLevel::Fatal, "systems crashed: doin ur mom").WithLogger(log.Name()));
+    log.Fatal("systems crashed: doin ur mom");
 
     EXPECT_EQ(sink->Emitted, 1);
     EXPECT_EQ(async->Enqueued, 1);

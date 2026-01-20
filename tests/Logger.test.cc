@@ -47,7 +47,7 @@ struct AsyncMockSink final: public logrin::AsyncSink {
 
 TEST(Loggers, DefaultConstructor)
 {
-    Logger log("test");
+    Logger log("test", LogLevel::Trace);
     EXPECT_EQ(log.Name(), "test");
 }
 
@@ -55,11 +55,10 @@ TEST(Loggers, AddSink)
 {
     auto* sink = new MockSink();
 
-    Logger log("test");
+    Logger log("test", LogLevel::Trace);
     log.AddSink(sink);
 
-    LogRecord record = LogRecord::Now(LogLevel::Fatal, "systems overloaded: ur mom gay").WithLogger(log.Name());
-    log.Log(record);
+    log.Fatal("systems overloaded: ur mom gay");
 
     EXPECT_EQ(sink->Emitted, 1);
 }
@@ -68,26 +67,24 @@ TEST(Loggers, AddAsyncSink)
 {
     auto* sink = new AsyncMockSink();
 
-    Logger log("test");
+    Logger log("test", LogLevel::Trace);
     log.AddAsyncSink(sink);
 
-    LogRecord record = LogRecord::Now(LogLevel::Fatal, "systems overloaded: ur mom gay").WithLogger(log.Name());
-    log.Log(record);
+    log.Fatal("systems overloaded: ur mom gay");
 
     EXPECT_EQ(sink->Enqueued, 1);
 }
 
 TEST(Loggers, EmitMultipleSinks)
 {
-    Logger log("multi");
+    Logger log("multi", LogLevel::Trace);
 
     log.AddSink<MockSink>();
     log.AddSink<MockSink>();
     log.AddAsyncSink<AsyncMockSink>();
     log.AddAsyncSink<AsyncMockSink>();
 
-    LogRecord record = LogRecord::Now(LogLevel::Fatal, "systems overloaded: ur mom gay").WithLogger(log.Name());
-    log.Log(record);
+    log.Fatal("systems overloaded: ur mom gay");
 
     for (const auto& sink: log.Sinks()) {
         auto* mockSink = dynamic_cast<MockSink*>(sink.get());

@@ -56,16 +56,16 @@ common:ci --verbose_failures
 common:san --config=dbg --strip=never --copt=-O0 --copt=-fno-omit-frame-pointer
 
 ## ~ `--config=asan` enables Address Sanitizer (ASan)
-common:asan --config=san --//bazel/bazel/flags:asan=True
+common:asan --config=san --//bazel/flags:asan=True --@violet//buildsystem/bazel/flags:asan=True
 
 ## ~ `--config=msan` enables Memory Sanitizer (MSan)
-common:msan --config=san --//bazel/bazel/flags:msan=True
+common:msan --config=san --//bazel/flags:msan=True --@violet//buildsystem/bazel/flags:msan=True
 
 ## ~ `--config=ubsan` enables Undefined Behaviour Sanitizer (UBSan)
-common:ubsan --config=san --linkopt=-lubsan --//bazel/bazel/flags:ubsan=True
+common:ubsan --config=san --linkopt=-lubsan --//bazel/flags:ubsan=True --@violet//buildsystem/bazel/flags:ubsan=True
 
 ## ~ `--config=tsan` enables Thread Sanitizer (TSan)
-common:tsan --config=san --//bazel/bazel/flags:tsan=True
+common:tsan --config=san --//bazel/flags:tsan=True --@violet//buildsystem/bazel/flags:tsan=True
 
 # Import .usr.bazelrc if it exists
 try-import %workspace%/.usr.bazelrc

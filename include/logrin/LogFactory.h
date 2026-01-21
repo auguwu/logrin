@@ -32,14 +32,15 @@ struct AsyncSink;
 
 struct VIOLET_API LogFactory final {
     static auto Get(violet::Str name) noexcept -> Logger;
-    static void Init(LogLevel level, std::initializer_list<Sink*> sinks = {},
-        std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+
+    static void Init(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks = {},
+        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = {}) noexcept;
 
     static void Shutdown() noexcept;
 
 private:
-    VIOLET_EXPLICIT LogFactory(
-        LogLevel level, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+    VIOLET_EXPLICIT LogFactory(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks,
+        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = {}) noexcept;
 
     LogLevel n_level;
     violet::Vec<violet::SharedPtr<Sink>> n_sinks;

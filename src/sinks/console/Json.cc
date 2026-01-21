@@ -42,7 +42,7 @@ auto Json::WithPretty(bool yes) noexcept -> Json&
 auto Json::Format(const LogRecord& record) const noexcept -> violet::String
 {
     auto value = intoJson(record);
-    return value.dump(this->n_pretty ? this->n_indent : -1, ' ', true);
+    return std::format("{}\n", value.dump(this->n_pretty ? this->n_indent : -1, ' ', true));
 }
 
 auto Json::intoJson(const LogRecord& record) noexcept -> nlohmann::json

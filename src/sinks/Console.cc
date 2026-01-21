@@ -32,6 +32,7 @@
 #endif
 
 using logrin::sinks::Console;
+using violet::Int32;
 using violet::UInt8;
 using violet::Vec;
 
@@ -58,7 +59,7 @@ auto Console::WithStream(Console::Stream stream) noexcept -> Console&
 
 void Console::Emit(const LogRecord& record)
 {
-    if (auto* fmt = this->n_formatter.get()) {
+    if (auto* fmt = this->n_formatter.get(); this->n_descriptor.Valid()) {
         auto str = fmt->Format(record);
 
         {
@@ -86,7 +87,14 @@ void Console::Flush() noexcept
     // Flush could throw an error from the OS if anything happens and I, unfortunately,
     // still want to be notified in my own programs.
     if (auto res = this->n_descriptor.Flush(); res.Err()) {
-        std::cerr << "[logrin@fatal]: received fatal error when flushing to stream: "
-                  << VIOLET_MOVE(res.Error()).ToString() << '\n';
+        auto err = VIOLET_MOVE(res.Error());
+
+        // TODO(@auguwu/Noel): this is a bug with the `Noelware.Violet.IO` framework
+        // with `io::FileDescriptor::Flush`.
+        //
+        // https://github.com/Noelware/violet/issues/19
+        if (err.RawOSError().HasValueAnd([](Int32 err) -> bool { return err != EINVAL; })) {
+            std::cerr << "[logrin@fatal]: received fatal error when flushing to stream: " << err.ToString() << '\n';
+        }
     }
 }

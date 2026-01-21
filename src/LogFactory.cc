@@ -27,21 +27,17 @@
 using logrin::AsyncSink;
 using logrin::LogFactory;
 using logrin::Sink;
+using violet::SharedPtr;
 using violet::Str;
 
 static LogFactory* instance = nullptr; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-LogFactory::LogFactory(
-    LogLevel level, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks) noexcept
+LogFactory::LogFactory(LogLevel level, std::initializer_list<SharedPtr<Sink>> sinks,
+    std::initializer_list<SharedPtr<AsyncSink>> asyncSinks) noexcept
     : n_level(level)
+    , n_sinks(sinks)
+    , n_asyncSinks(asyncSinks)
 {
-    for (const auto& sink: sinks) {
-        this->n_sinks.emplace_back(sink);
-    }
-
-    for (const auto& asyncSink: asyncSinks) {
-        this->n_asyncSinks.emplace_back(asyncSink);
-    }
 }
 
 auto LogFactory::Get(Str name) noexcept -> Logger
@@ -64,8 +60,8 @@ auto LogFactory::Get(Str name) noexcept -> Logger
     return log;
 }
 
-void LogFactory::Init(
-    LogLevel level, std::initializer_list<Sink*> sinks, std::initializer_list<AsyncSink*> asyncSinks) noexcept
+void LogFactory::Init(LogLevel level, std::initializer_list<SharedPtr<Sink>> sinks,
+    std::initializer_list<SharedPtr<AsyncSink>> asyncSinks) noexcept
 {
     if (instance != nullptr) {
         return;

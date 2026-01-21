@@ -73,7 +73,7 @@ def cc_library(name, **kwargs):
     return cc_library_(
         name = name,
         copts = copts + SANITIZER_OPTS + COMPILER_COPTS + [
-            "-DLOGRIN_VERSION_STR=%s" % VERSION,
+            "-DLOGRIN_VERSION_STR=\"%s\"" % VERSION,
             "-DLOGRIN_VERSION=%d" % encode_as_int(),
         ],
         linkopts = linkopts + SANITIZER_OPTS,

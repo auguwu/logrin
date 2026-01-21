@@ -35,7 +35,7 @@ namespace {
 
 constexpr const violet::terminal::Style kTrace = violet::terminal::Style::RGB(163, 182, 138); // #A3B68A
 constexpr const violet::terminal::Style kDebug = violet::terminal::Style::RGB(148, 224, 232); // #94E0E8
-constexpr const violet::terminal::Style kError = violet::terminal::Style::RGB(153, 75, 104); // #994B68
+constexpr const violet::terminal::Style kError = violet::terminal::Style::RGB(255, 82, 82); // #ff5252
 constexpr const violet::terminal::Style kWarn = violet::terminal::Style::RGB(243, 243, 134); // #F3F386
 constexpr const violet::terminal::Style kInfo = violet::terminal::Style::RGB(178, 157, 243); // #B29DF3
 
@@ -144,6 +144,7 @@ auto Azalia::Format(const LogRecord& record) const noexcept -> violet::String
         this->printAttributes(os, record.Fields);
     }
 
+    os << '\n';
     return os.str();
 }
 

@@ -56,6 +56,9 @@ namespace logrin::sinks {
 /// logger.Info("Hello, world!");
 /// ```
 struct VIOLET_API Console final: public Sink {
+    VIOLET_DISALLOW_MOVE(Console);
+    ~Console() override = default;
+
     /// What console stream to write formatted logs to.
     enum struct Stream : violet::UInt8 {
         Stdout, ///< process' standard input
@@ -67,16 +70,53 @@ struct VIOLET_API Console final: public Sink {
     VIOLET_IMPLICIT Console(Stream stream = Stream::Stdout) noexcept
         : n_stream(stream)
     {
+#ifdef VIOLET_UNIX
+        this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
+#elif defined(VIOLET_WINDOWS)
+        this->n_descriptor
+            = stream == GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+#endif
     }
 
     /// Creates a new console sink with a pre-defined formatter attached to it.
     /// @param args the constructor arguments for `T`.
-    template<typename T, typename... Args>
-        requires(std::is_base_of_v<console::Formatter, T> && std::is_constructible_v<T, Args...>)
-    VIOLET_EXPLICIT Console(Stream stream, Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>)
-        : n_formatter(std::make_shared<T>(VIOLET_FWD(Args, args)...))
+    template<typename T>
+        requires(std::is_base_of_v<console::Formatter, T>)
+    VIOLET_IMPLICIT Console(Stream stream, T&& formatter) noexcept(std::is_nothrow_default_constructible_v<T>)
+        : n_formatter(std::make_shared<T>(VIOLET_FWD(T, formatter)))
         , n_stream(stream)
     {
+#ifdef VIOLET_UNIX
+        this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
+#elif defined(VIOLET_WINDOWS)
+        this->n_descriptor
+            = stream == GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+#endif
+    }
+
+    VIOLET_IMPLICIT Console(const Console& other)
+    {
+        std::lock_guard lock(other.n_mux);
+
+        // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer)
+        this->n_descriptor = other.n_descriptor;
+        this->n_formatter = other.n_formatter;
+        this->n_stream = other.n_stream;
+        // NOLINTEND(cppcoreguidelines-prefer-member-initializer)
+    }
+
+    auto operator=(const Console& other) -> Console&
+    {
+        if (this != &other) {
+            std::lock_guard lock1(this->n_mux);
+            std::lock_guard lock2(other.n_mux);
+
+            this->n_descriptor = other.n_descriptor;
+            this->n_formatter = other.n_formatter;
+            this->n_stream = other.n_stream;
+        }
+
+        return *this;
     }
 
     /// Replaces the current formatter for this sink.

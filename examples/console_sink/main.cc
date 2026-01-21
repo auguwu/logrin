@@ -25,22 +25,21 @@
 #include <logrin/Sinks/Console/Formatter/Json.h>
 
 using namespace logrin; // NOLINT(google-build-using-namespace)
+using namespace logrin::sinks; // NOLINT(google-build-using-namespace)
 using namespace logrin::sinks::console::formatters; // NOLINT(google-build-using-namespace)
 
 auto main() -> int
 {
-    auto* console = new sinks::Console();
-    *console = console->WithFormatter<Azalia>();
+    violet::SharedPtr<Console> console = std::make_shared<Console>();
+    console->WithFormatter<Azalia>();
 
-    auto* console2 = new sinks::Console();
-    *console2 = console2->WithFormatter<Json>();
-
+    violet::SharedPtr<Console> console2 = std::make_shared<Console>(Console::Stream::Stderr, Json());
     LogFactory::Init(LogLevel::Info, { console, console2 });
 
     auto log = LogFactory::Get("console_sink");
     log.Info("Hello, world! (this should be emitted right away)").With("disk", "/dev/sda1");
 
-    auto number_67 = log.Error("this should be emitted last? 67!! haha!! funn number!!!! im not funny...");
+    auto number_67 = log.Fatal("this should be emitted last? 67!! haha!! funn number!!!! im not funny...");
 
     LogFactory::Shutdown();
 }

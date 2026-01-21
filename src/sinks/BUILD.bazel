@@ -30,6 +30,7 @@ cc_library(
         "//src:sink",
         "//src/sinks/console:formatter",
         "@violet//violet",
+        "@violet//violet/io:descriptor",
     ],
 )
 

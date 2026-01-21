@@ -114,8 +114,16 @@ for depfile in "${deps[@]}"; do
     ' "$SCRIPT_DIR/$depfile" >> "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
 done
 
+awk '
+  /^load\("@hedron_compile_commands\/\// { next }
+  /^refresh_compile_commands\(/ { s=1 }
+  s && /^\)/ { s=0; next }
+  !s
+' "$SCRIPT_DIR/BUILD.bazel" > "$SCRIPT_DIR/.bazeldist/BUILD.bazel"
+
 if command -v buildifier >/dev/null; then
     buildifier -mode fix "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
+    buildifier -mode fix "$SCRIPT_DIR/.bazeldist/BUILD.bazel"
 fi
 
 echo "[logrin/tools:bazeldist] repackaging \`.bazeldist\` as a tarball file with a determinstic timestamp"

@@ -190,6 +190,7 @@ build.ninja
 .ninja_logs
 
 **/.usr.bazelrc
+dist.tgz
 
 .bazeldist/
 external/

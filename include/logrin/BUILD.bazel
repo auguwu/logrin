@@ -19,12 +19,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files = glob(["*.h"])
-
-exports_files(files)
-
-filegroup(
-    name = "srcs",
-    srcs = files,
-    visibility = ["//:__subpackages__"],
-)
+exports_files(glob(["*.h"]))

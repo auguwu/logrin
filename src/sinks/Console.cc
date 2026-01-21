@@ -21,17 +21,72 @@
 
 #include <logrin/Sinks/Console.h>
 
+#ifdef VIOLET_UNIX
+#define STDOUT_HANDLE STDOUT_FILENO
+#define STDERR_HANDLE STDERR_FILENO
+#elif defined(VIOLET_WINDOWS)
+#include <windows.h>
+
+#define STDOUT_HANDLE STD_OUTPUT_HANDLE
+#define STDERR_HANDLE STD_ERROR_HANDLE
+#endif
+
 using logrin::sinks::Console;
+using violet::UInt8;
+using violet::Vec;
+
+auto Console::WithStream(Console::Stream stream) noexcept -> Console&
+{
+    std::lock_guard lock(this->n_mux);
+    if (this->n_descriptor.Valid()) {
+        auto fd = this->n_descriptor.Get();
+        if (fd == STDOUT_HANDLE && stream == Console::Stream::Stdout) {
+            return *this;
+        }
+
+        if (fd == STDERR_HANDLE && stream == Console::Stream::Stderr) {
+            return *this;
+        }
+
+        this->n_descriptor.Close();
+        this->n_descriptor = {};
+    }
+
+    this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_HANDLE : STDERR_HANDLE;
+    return *this;
+}
 
 void Console::Emit(const LogRecord& record)
 {
     if (auto* fmt = this->n_formatter.get()) {
         auto str = fmt->Format(record);
-        std::cout << str << '\n';
+
+        {
+            std::lock_guard lock(this->n_mux);
+
+            Vec<UInt8> data(str.begin(), str.end());
+            auto res = this->n_descriptor.Write(data);
+
+            // In rare case scenarios, `Write()` could fail for some odd reason. We could
+            // just ignore it and be done for the day, but I, unfortunately, like to know
+            // when shit hits the fan. So, this will write to `std::cerr`, and if that fails,
+            // then it's not my problem anymore.
+            if (res.Err()) {
+                std::cerr << "[logrin@fatal:" << record.Location.file_name() << ":" << record.Location.line()
+                          << record.Location.column()
+                          << "]: received fatal error when writing to stream: " << VIOLET_MOVE(res.Error()).ToString()
+                          << '\n';
+            }
+        }
     }
 }
 
 void Console::Flush() noexcept
 {
-    std::cout.flush();
+    // Flush could throw an error from the OS if anything happens and I, unfortunately,
+    // still want to be notified in my own programs.
+    if (auto res = this->n_descriptor.Flush(); res.Err()) {
+        std::cerr << "[logrin@fatal]: received fatal error when flushing to stream: "
+                  << VIOLET_MOVE(res.Error()).ToString() << '\n';
+    }
 }

@@ -20,15 +20,14 @@
 # SOFTWARE.
 
 bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
-bazel_dep(name = "violet", version = "26.01")
-git_override(
+bazel_dep(name = "violet", version = "26.02")
+archive_override(
     module_name = "violet",
-    commit = "033f4f84d0f7ff598a342efca59021156e41f99a",
-    patch_strip = 1,
-    patches = [
-        "patches/001_violet__remove_devdeps.patch",
+    integrity = "sha256-/XA/zcEEdYrNqUJ11Jh4Ett20dJXqxIgEAuJSz+yBCs=",
+    urls = [
+        # "https://artifacts.noelware.org/bazel-registry/violet/26.02/dist.tgz",
+        "https://github.com/Noelware/violet/releases/download/26.02/bazeldist.tgz",
     ],
-    remote = "https://github.com/Noelware/violet.git",
 )
 
 # You can enable the OpenTelemetry sink with `--@logrin//bazel/flags:otel_sink=True`

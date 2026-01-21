@@ -29,9 +29,44 @@ struct LogRecord;
 
 namespace logrin::sinks::console {
 
+/// A log record formatter for console sinks.
+///
+/// Formatter defines a interface for converting [`LogRecord`]s into a string suitable
+/// for console output. Concrete implementations decide the visual style, colourization,
+/// and structure of log messages.
+///
+/// ## Example
+/// ```
+/// #include <logrin/Sinks/Console/Formatter.h>
+/// #include <logrin/Sinks/Console.h>
+/// #include <logrin/LogRecord.h>
+/// #include <logrin/Logger.h>
+///
+/// using namespace logrin;
+/// using namespace logrin::sinks;
+/// using namespace logrin::sinks::console;
+///
+/// struct MyFormatter final: public Formatter {
+///     [[nodiscard]] auto Format(const LogRecord& record) const noexcept -> violet::String {
+///         return std::format("[{}] {}", violet::ToString(record.Level), record.Message);
+///     }
+/// };
+///
+/// Logger logger("main", LogLevel::Trace);
+/// logger.AddSink<Console>(MyFormatter());
+///
+/// logger.Info("Hello, world!");
+/// /// => [info] Hello, world!
+/// ```
 struct VIOLET_API Formatter {
+    /// Virtual destructor.
+    ///
+    /// Allows derived formatters to clean up properly when deleted
+    /// via a `Formatter*`.
     virtual ~Formatter() = default;
 
+    /// Converts a log record into a string for console output.
+    /// @param record the record to format
     [[nodiscard]] virtual auto Format(const LogRecord& record) const noexcept -> violet::String = 0;
 };
 

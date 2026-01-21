@@ -20,7 +20,7 @@
 # SOFTWARE.
 
 load("@rules_cc//cc:defs.bzl", cc_library_ = "cc_library", cc_test_ = "cc_test")
-load(":version.bzl", "VERSION", "encode_as_int")
+load(":version.bzl", "encode_as_int")
 
 SANITIZER_OPTS = select({
     "//bazel/flags:asan_enabled": ["-fsanitize=address"],
@@ -72,13 +72,10 @@ def cc_library(name, **kwargs):
 
     return cc_library_(
         name = name,
-        copts = copts + SANITIZER_OPTS + COMPILER_COPTS + [
-            "-DLOGRIN_VERSION_STR=\"%s\"" % VERSION,
-            "-DLOGRIN_VERSION=%d" % encode_as_int(),
-        ],
+        copts = copts + SANITIZER_OPTS + COMPILER_COPTS,
         linkopts = linkopts + SANITIZER_OPTS,
         includes = ["include"],
-        defines = ["BAZEL"],
+        defines = ["BAZEL"] + ["LOGRIN_VERSION=%d" % encode_as_int()],
         deps = deps,
         **kwargs
     )

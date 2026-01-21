@@ -47,8 +47,8 @@ struct AsyncMockSink final: public logrin::AsyncSink {
 
 TEST(LogFactory, ItWorks)
 {
-    auto* sink = new MockSink();
-    auto* async = new AsyncMockSink();
+    auto sink = std::make_shared<MockSink>();
+    auto async = std::make_shared<AsyncMockSink>();
 
     LogFactory::Init(LogLevel::Trace, { sink }, { async });
 

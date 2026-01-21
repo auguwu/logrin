@@ -55,6 +55,9 @@ for dir in "${dirs[@]}"; do
 
     if [ "$dir" == "bazel" ]; then
         rm -rf "$SCRIPT_DIR/.bazeldist/bazel/deps"
+
+        version=$(cat "$SCRIPT_DIR/.logrin-version")
+        sed -i "s/^VERSION = \".*\"/VERSION = \"$version\"/" "$SCRIPT_DIR/.bazeldist/bazel/version.bzl"
     fi
 
     if [ "$dir" == "patches" ]; then

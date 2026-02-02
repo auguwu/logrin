@@ -68,19 +68,35 @@ constexpr void writeAttrValue(std::ostream& os, const AttributeValue& value) noe
 {
     if (value.Is<std::monostate>()) {
         os << "{null}";
-    } else if (value.Is<bool>()) {
-        os << std::boolalpha << *value.As<bool>();
-    } else if (value.Is<violet::Int64>()) {
-        os << *value.As<violet::Int64>();
-    } else if (value.Is<violet::UInt64>()) {
-        os << *value.As<violet::UInt64>();
-    } else if (value.Is<double>()) {
-        os << *value.As<double>();
-    } else if (value.Is<String>()) {
-        os << '"' << *value.As<String>() << '"';
-    } else {
-        VIOLET_UNREACHABLE_WITH("reached unknown state");
+        return;
     }
+
+    if (value.Is<bool>()) {
+        os << std::boolalpha << *value.As<bool>();
+        return;
+    }
+
+    if (value.Is<violet::Int64>()) {
+        os << *value.As<violet::Int64>();
+        return;
+    }
+
+    if (value.Is<violet::UInt64>()) {
+        os << *value.As<violet::UInt64>();
+        return;
+    }
+
+    if (value.Is<double>()) {
+        os << *value.As<double>();
+        return;
+    }
+
+    if (value.Is<String>()) {
+        os << '"' << *value.As<String>() << '"';
+        return;
+    }
+
+    VIOLET_UNREACHABLE();
 }
 
 } // namespace

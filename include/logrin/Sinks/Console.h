@@ -26,6 +26,10 @@
 #include <violet/IO/Descriptor.h>
 #include <violet/Violet.h>
 
+#ifdef VIOLET_UNIX
+#include <unistd.h>
+#endif
+
 namespace logrin::sinks {
 
 /// Logging sink that writes formatted log records to a console stream.
@@ -73,8 +77,7 @@ struct VIOLET_API Console final: public Sink {
 #ifdef VIOLET_UNIX
         this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
 #elif defined(VIOLET_WINDOWS)
-        this->n_descriptor
-            = stream == GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+        this->n_descriptor = GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
 #endif
     }
 
@@ -89,8 +92,7 @@ struct VIOLET_API Console final: public Sink {
 #ifdef VIOLET_UNIX
         this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
 #elif defined(VIOLET_WINDOWS)
-        this->n_descriptor
-            = stream == GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+        this->n_descriptor = GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
 #endif
     }
 

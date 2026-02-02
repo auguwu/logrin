@@ -18,20 +18,30 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+pkgs: {
+  version = pkgs.lib.strings.trimWith {
+    start = true;
+    end = true;
+  } (builtins.readFile ../../.logrin-version);
 
-bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
-bazel_dep(name = "violet", version = "26.02.03")
-archive_override(
-    module_name = "violet",
-    integrity = "sha256-z+cSW2IsvubvMH4rHYZ0Nn9WqHxXF7ynZde0z+CmNdM=",
-    urls = [
-        # "https://artifacts.noelware.org/bazel-registry/violet/26.02.03/bazeldist.tgz",
-        "https://github.com/Noelware/violet/releases/download/26.02.03/bazeldist.tgz",
-    ],
-)
+  llvm = let
+    oldStdenv = pkgs.stdenv;
+    version = "21";
+    package = pkgs."llvmPackages_${version}";
+  in {
+    inherit version package;
+    inherit (package) compiler-rt libcxx bintools lldb;
 
-# You can enable the OpenTelemetry sink with `--@logrin//bazel/flags:otel_sink=True`
-bazel_dep(name = "opentelemetry-cpp", version = "1.22.0")
+    clang-tools = package.clang-tools.override {
+      enableLibcxx = true;
+    };
 
-# You can enable the HTTP sink with `--@logrin//bazel/flags:http_sink=True`
-bazel_dep(name = "curl", version = "8.11.0.bcr.4")
+    stdenv =
+      (
+        if oldStdenv.hostPlatform.isLinux
+        then pkgs.stdenvAdapters.useMoldLinker
+        else pkgs.lib.id
+      )
+      package.libcxxStdenv;
+  };
+}

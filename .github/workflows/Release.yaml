@@ -21,21 +21,27 @@
 
 name: Release
 on:
-    push:
-        tags:
-            - '[0-9]+.[0-9]+(.[0-9]+)?'
+    release:
+        types:
+          - published
 jobs:
     bazeldist:
-        name: "Bazel: Distribution"
+        name: "Bazel / Distribution"
         runs-on: ubuntu-latest
         container:
-            # TODO(@auguwu/Noel): switch to `cr.noelware.cloud/private/ci/base:latest` once avaliable
+            # TODO(@auguwu/Noel): switch to `cr.noelware.cloud/private/ci/base` once available
             image: ghcr.io/noelware/violet/ci:clang-21
         steps:
             - uses: actions/checkout@v6
             - run: ./tools/bazeldist
-            - name: push to release
-              uses: softprops/action-gh-release@v2
-              if: github.ref_type == 'tag'
+            - id: integrity
+              run: >-
+                integrity=$(openssl dgst -sha256 -binary "bazeldist.tgz" | openssl base64 -A | sed 's/^/sha256-/')
+                echo "integrity=$integrity" >> $GITHUB_OUTPUT
+            - uses: softprops/action-gh-release@v2
               with:
-                files: .bazeldist/dist.tgz
+                files: ${{github.workspace}}/bazeldist.tgz
+            - run: python3 ./tools/hotpatch-release.py
+              env:
+                BAZELDIST_INTEGRITY: ${{steps.integrity.outputs.integrity}}
+                GITHUB_TOKEN: ${{github.token}}

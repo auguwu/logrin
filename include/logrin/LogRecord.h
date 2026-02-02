@@ -21,8 +21,10 @@
 
 #pragma once
 
-#include <chrono>
 #include <violet/Violet.h>
+
+#include <chrono>
+#include <variant>
 
 namespace logrin {
 
@@ -57,13 +59,15 @@ struct VIOLET_API AttributeValue final {
     }
 
     /// Constructs a signed 64-bit integer attribute value.
+    template<std::convertible_to<violet::Int64> T>
     constexpr VIOLET_IMPLICIT AttributeValue(violet::Int64 value) noexcept
         : n_data(value)
     {
     }
 
     /// Constructs an unsigned 64-bit integer attribute value.
-    constexpr VIOLET_IMPLICIT AttributeValue(violet::UInt64 value) noexcept
+    template<std::convertible_to<violet::UInt64> T>
+    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(value)
     {
     }
@@ -157,11 +161,3 @@ VIOLET_TO_STRING(const logrin::LogLevel&, level, {
         return "fatal";
     }
 });
-
-/**
- * @macro FIELD(name, value)
- *
- * This macro is meant to be inside of [`logrin::Logger::Log`] to make emplacing
- * an attribute field in a logger concise and easy.
- */
-#define FIELD(name, value) ::std::make_pair<::violet::String, ::logrin::AttributeValue>(name, value)

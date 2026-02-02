@@ -21,9 +21,10 @@
 
 #pragma once
 
-#include <initializer_list>
 #include <logrin/Logger.h>
 #include <violet/Violet.h>
+
+#include <initializer_list>
 
 namespace logrin {
 

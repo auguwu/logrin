@@ -19,19 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
-bazel_dep(name = "violet", version = "26.02.03")
-archive_override(
-    module_name = "violet",
-    integrity = "sha256-z+cSW2IsvubvMH4rHYZ0Nn9WqHxXF7ynZde0z+CmNdM=",
-    urls = [
-        # "https://artifacts.noelware.org/bazel-registry/violet/26.02.03/bazeldist.tgz",
-        "https://github.com/Noelware/violet/releases/download/26.02.03/bazeldist.tgz",
-    ],
-)
+prefix=@out@
+exec_prefix=\${prefix}
+includedir=\${prefix}/include
+libdir=\${prefix}/lib
 
-# You can enable the OpenTelemetry sink with `--@logrin//bazel/flags:otel_sink=True`
-bazel_dep(name = "opentelemetry-cpp", version = "1.22.0")
-
-# You can enable the HTTP sink with `--@logrin//bazel/flags:http_sink=True`
-bazel_dep(name = "curl", version = "8.11.0.bcr.4")
+Name: logrin
+Description: Modern, async-aware logging framework for C++20
+Version: @version@
+Cflags: -I\${includedir}
+Libs: -L\${libdir}

@@ -30,7 +30,7 @@ struct Sink;
 struct AsyncSink;
 struct Logger;
 
-struct LogEntry final {
+struct VIOLET_API LogEntry final {
     VIOLET_DISALLOW_CONSTEXPR_CONSTRUCTOR(LogEntry);
     VIOLET_DISALLOW_COPY_AND_MOVE(LogEntry);
 

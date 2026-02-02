@@ -40,7 +40,7 @@ namespace logrin {
 ///
 /// Destructors must not return until all owned resources (threads, file handles, etc) have
 /// been released.
-struct AsyncSink {
+struct VIOLET_API AsyncSink {
     /// Destroys the sink and releases all owned resources.
     ///
     /// Implementations must ensure that all background workers have terminated

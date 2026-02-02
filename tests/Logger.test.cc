@@ -75,6 +75,7 @@ TEST(Loggers, AddAsyncSink)
     EXPECT_EQ(sink->Enqueued, 1);
 }
 
+#if VIOLET_USE_RTTI
 TEST(Loggers, EmitMultipleSinks)
 {
     Logger log("multi", LogLevel::Trace);
@@ -98,3 +99,4 @@ TEST(Loggers, EmitMultipleSinks)
         EXPECT_EQ(mockSink->Enqueued, 1);
     }
 }
+#endif

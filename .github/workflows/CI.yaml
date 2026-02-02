@@ -34,6 +34,7 @@ on:
             - '.ci/**'
             - 'nix/**'
 
+            - CHANGELOG.md
             - renovate.json
             - flake.lock
             - .*ignore
@@ -43,6 +44,7 @@ on:
         types: [opened, synchronize]
         branches:
             - 'issues/gh-**'
+            - 'noel/**'
             - 'feat/**'
             - master
         paths:
@@ -84,6 +86,12 @@ jobs:
                     ~/.cache/bazelisk
 
             - run: bazel build ${{env.BAZELFLAGS}} //...
+            - name: "build: without C++ exceptions"
+              run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-exceptions --host_cxxopt=-fno-exceptions //...
+
+            - name: "build: without RTTI"
+              run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-rtti --host_cxxopt=-fno-rtti //...
+
             - run: bazel test ${{env.BAZELFLAGS}} //...
     asan-linux:
         name: "Bazel / Linux [${{matrix.compiler}} (ASan)]"
@@ -111,6 +119,7 @@ jobs:
                     ~/.cache/bazelisk
 
             - run: bazel build ${{env.BAZELFLAGS}} //...
+
             - run: bazel test ${{env.BAZELFLAGS}} //...
     ubsan-linux:
         name: "Bazel / Linux [${{matrix.compiler}} (UBSan)]"

@@ -35,7 +35,7 @@ namespace logrin {
 /// Implementations of [`logrin::Sink`] should usually be thread-safe unless explicitly documentated
 /// else-where if whether or not this requirement must be met. Logrin may call [`Sink::Emit`] concurrently
 /// from multiple threads.
-struct Sink {
+struct VIOLET_API Sink {
     /// Destructor of a sink.
     ///
     /// Implementations should ensure that all resources are released and any

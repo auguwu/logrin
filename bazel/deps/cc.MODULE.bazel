@@ -20,13 +20,13 @@
 # SOFTWARE.
 
 bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
-bazel_dep(name = "violet", version = "26.02.03")
+bazel_dep(name = "violet", version = "26.03.02")
 archive_override(
     module_name = "violet",
-    integrity = "sha256-z+cSW2IsvubvMH4rHYZ0Nn9WqHxXF7ynZde0z+CmNdM=",
+    integrity = "sha256-ppqGolc6OZbgkC2tLehCUqkLiCVuTJlIzws891NkSyg=",
     urls = [
-        # "https://artifacts.noelware.org/bazel-registry/violet/26.02.03/bazeldist.tgz",
-        "https://github.com/Noelware/violet/releases/download/26.02.03/bazeldist.tgz",
+        # "https://artifacts.noelware.org/bazel-registry/violet/26.03.02/bazeldist.tgz",
+        "https://github.com/Noelware/violet/releases/download/26.03.02/bazeldist.tgz",
     ],
 )
 

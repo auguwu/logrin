@@ -140,7 +140,7 @@ struct VIOLET_API LogRecord final {
 
 } // namespace logrin
 
-VIOLET_TO_STRING(const logrin::LogLevel&, level, {
+VIOLET_TO_STRING(logrin::LogLevel, level, {
     switch (level) {
     case logrin::LogLevel::Trace:
         return "trace";

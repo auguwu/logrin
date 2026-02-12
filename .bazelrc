@@ -21,6 +21,10 @@
 
 # For `--config=dbg`, we set `--compilation_mode` to `dbg`
 build:dbg --compilation_mode=dbg
+build:dbg --cxxopt=-g
+build:dbg --host_cxxopt=-g
+build:dbg --cxxopt=-O0
+build:dbg --host_cxxopt=-O0
 
 # For `--config=opt`, we set `--compilation_mode` to `opt`
 build:opt --compilation_mode=opt

@@ -84,7 +84,7 @@ struct VIOLET_API Console final: public Sink {
     /// Creates a new console sink with a pre-defined formatter attached to it.
     /// @param args the constructor arguments for `T`.
     template<typename T>
-        requires(std::is_base_of_v<console::Formatter, T>)
+        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>>)
     VIOLET_IMPLICIT Console(Stream stream, T&& formatter) noexcept(std::is_nothrow_default_constructible_v<T>)
         : n_formatter(std::make_shared<T>(VIOLET_FWD(T, formatter)))
         , n_stream(stream)
@@ -124,7 +124,7 @@ struct VIOLET_API Console final: public Sink {
     /// Replaces the current formatter for this sink.
     /// @param formatter the formatter to replace
     template<typename T>
-        requires(std::is_base_of_v<console::Formatter, T>)
+        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>>)
     auto WithFormatter(T&& formatter) noexcept -> Console&
     {
         this->n_formatter = std::make_shared<T>(VIOLET_FWD(T, formatter));
@@ -138,7 +138,7 @@ struct VIOLET_API Console final: public Sink {
     /// Replaces the current formatter for this sink to `T`.
     /// @param args constructor arguments of `T`.
     template<typename T, typename... Args>
-        requires(std::is_base_of_v<console::Formatter, T> && std::is_constructible_v<T, Args...>)
+        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>> && std::is_constructible_v<T, Args...>)
     auto WithFormatter(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) -> Console&
     {
         this->n_formatter = std::make_shared<T>(VIOLET_FWD(Args, args)...);

@@ -60,3 +60,19 @@ TEST(LogFactory, ItWorks)
 
     LogFactory::Shutdown();
 }
+
+TEST(LogFactory, LogLevelOffShouldNotEmitAnything)
+{
+    auto sink = std::make_shared<MockSink>();
+    auto async = std::make_shared<AsyncMockSink>();
+
+    LogFactory::Init(LogLevel::Off, { sink }, { async });
+
+    auto log = LogFactory::Get("logger");
+    log.Fatal("systems crashed: doin ur mom");
+
+    EXPECT_EQ(sink->Emitted, 0);
+    EXPECT_EQ(async->Enqueued, 0);
+
+    LogFactory::Shutdown();
+}

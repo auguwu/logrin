@@ -41,6 +41,10 @@ constexpr const violet::terminal::Style kInfo = violet::terminal::Style::RGB(178
 
 constexpr auto levelToStyle(LogLevel level) -> Style
 {
+    VIOLET_DIAGNOSTIC_PUSH
+#if defined(VIOLET_GCC) || defined(VIOLET_CLANG)
+    VIOLET_DIAGNOSTIC_IGNORE("-Wswitch")
+#endif
     switch (level) {
     case LogLevel::Trace:
         return kTrace;
@@ -62,6 +66,9 @@ constexpr auto levelToStyle(LogLevel level) -> Style
         return error.Bold();
     } break;
     }
+    VIOLET_DIAGNOSTIC_POP
+
+    VIOLET_UNREACHABLE();
 }
 
 constexpr void writeAttrValue(std::ostream& os, const AttributeValue& value) noexcept

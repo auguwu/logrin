@@ -40,10 +40,11 @@ LogFactory::LogFactory(LogLevel level, std::initializer_list<SharedPtr<Sink>> si
 {
 }
 
+static const auto dummyLogger = logrin::Logger("a dummy logger", logrin::LogLevel::Off);
+
 auto LogFactory::Get(Str name) noexcept -> Logger
 {
-    if (instance == nullptr) {
-        static const auto dummyLogger = Logger("a dummy logger", LogLevel::Off);
+    if (instance == nullptr || instance->n_level == LogLevel::Off) {
         return dummyLogger;
     }
 
@@ -71,7 +72,8 @@ void LogFactory::Init(LogLevel level, std::initializer_list<SharedPtr<Sink>> sin
         return;
     }
 
-    instance = new LogFactory(level, sinks, asyncSinks);
+    instance = new LogFactory(level, level == LogLevel::Off ? std::initializer_list<SharedPtr<Sink>>{} : sinks,
+        level == LogLevel::Off ? std::initializer_list<SharedPtr<AsyncSink>>{} : asyncSinks);
 }
 
 void LogFactory::Shutdown() noexcept
@@ -85,4 +87,5 @@ void LogFactory::Shutdown() noexcept
     }
 
     delete instance;
+    instance = nullptr;
 }

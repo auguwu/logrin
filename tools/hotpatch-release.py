@@ -67,8 +67,8 @@ def main():
         body += "    module_name = \"logrin\",\n"
         body += "    integrity = \"%s\",\n" % integrity
         body += "    urls = [\n"
-        body += "        # \"https://artifacts.noelware.org/bazel-registry/violet/%s/bazeldist.tgz\",\n" % tag
-        body += "        \"https://github.com/Noelware/violet/releases/download/%s/bazeldist.tgz\",\n" % tag
+        body += "        # \"https://artifacts.floofy.dev/bazel-registry/logrin/%s/bazeldist.tgz\",\n" % tag
+        body += "        \"https://github.com/auguwu/logrin/releases/download/%s/bazeldist.tgz\",\n" % tag
         body += "    ]\n"
         body += ")\n"
         body += "```\n\n"

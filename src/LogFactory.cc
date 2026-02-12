@@ -42,7 +42,7 @@ LogFactory::LogFactory(LogLevel level, std::initializer_list<SharedPtr<Sink>> si
 
 auto LogFactory::Get(Str name) noexcept -> Logger
 {
-    if (instance != nullptr) {
+    if (instance == nullptr) {
         static const auto dummyLogger = Logger("a dummy logger", LogLevel::Off);
         return dummyLogger;
     }

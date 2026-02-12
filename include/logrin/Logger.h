@@ -63,6 +63,10 @@ struct VIOLET_API Logger final {
 
     [[nodiscard]] constexpr auto Enabled(LogLevel level) const noexcept -> bool
     {
+        if (level == LogLevel::Off) {
+            return false;
+        }
+
         return level >= this->n_level;
     }
 

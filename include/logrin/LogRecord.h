@@ -38,7 +38,8 @@ enum struct LogLevel : violet::UInt8 {
     Info, ///< informational message describing normal operations.
     Warning, ///< recoverable issues or unexpected situations
     Error, ///< errors that are prevented an operation from completing
-    Fatal ///< critical errors that typically precede process termination.
+    Fatal, ///< critical errors that typically precede process termination.
+    Off ///< no logs should be emitted at all.
 };
 
 /// A dynamically, typed attribute value.
@@ -159,5 +160,8 @@ VIOLET_TO_STRING(logrin::LogLevel, level, {
 
     case logrin::LogLevel::Fatal:
         return "fatal";
+
+    case logrin::LogLevel::Off:
+        return "off";
     }
 });

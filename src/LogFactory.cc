@@ -42,7 +42,11 @@ LogFactory::LogFactory(LogLevel level, std::initializer_list<SharedPtr<Sink>> si
 
 auto LogFactory::Get(Str name) noexcept -> Logger
 {
-    VIOLET_DEBUG_ASSERT(instance != nullptr, "factory was not initialized with `logrin::LogFactory::Init`");
+    if (instance != nullptr) {
+        static const auto dummyLogger = Logger("a dummy logger", LogLevel::Off);
+        return dummyLogger;
+    }
+
     if (auto it = instance->n_loggers.find(violet::String(name)); it != instance->n_loggers.end()) {
         return it->second;
     }

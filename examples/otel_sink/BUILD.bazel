@@ -19,9 +19,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FLAGS = [
-    "ubsan",
-    "asan",
-    "msan",
-    "tsan",
-]
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary(
+    name = "otel_sink",
+    srcs = ["main.cc"],
+    visibility = ["//visibility:private"],
+    deps = [
+        "//src:log_factory",
+        "//src/sinks:opentelemetry",
+        "@otel//exporters/otlp:otlp_http_log_record_exporter",
+    ],
+)

@@ -52,8 +52,6 @@ cc_library(
     deps = [
         ":formatter",
         "//src:log_record",
-        "@nlohmann_json//:json",
         "@violet//violet",
-        "@violet//violet/support:demangle",
     ],
 )

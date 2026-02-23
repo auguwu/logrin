@@ -84,17 +84,5 @@ void Console::Emit(const LogRecord& record)
 
 void Console::Flush() noexcept
 {
-    // Flush could throw an error from the OS if anything happens and I, unfortunately,
-    // still want to be notified in my own programs.
-    if (auto res = this->n_descriptor.Flush(); res.Err()) {
-        auto err = VIOLET_MOVE(res.Error());
-
-        // TODO(@auguwu/Noel): this is a bug with the `Noelware.Violet.IO` framework
-        // with `io::FileDescriptor::Flush`.
-        //
-        // https://github.com/Noelware/violet/issues/19
-        if (err.RawOSError().HasValueAnd([](Int32 err) -> bool { return err != EINVAL; })) {
-            std::cerr << "[logrin@fatal]: received fatal error when flushing to stream: " << err.ToString() << '\n';
-        }
-    }
+    (void)this->n_descriptor.Flush();
 }

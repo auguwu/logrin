@@ -20,3 +20,42 @@
 // SOFTWARE.
 
 #pragma once
+
+#include "opentelemetry/logs/log_record.h"
+#include "opentelemetry/logs/logger.h"
+
+#include <logrin/AsyncSink.h>
+#include <logrin/LogRecord.h>
+#include <violet/Violet.h>
+
+#include <queue>
+#include <thread>
+
+namespace logrin::sinks {
+
+struct OpenTelemetry final: public AsyncSink {
+    VIOLET_IMPLICIT OpenTelemetry(violet::Str tag) noexcept;
+    VIOLET_IMPLICIT OpenTelemetry(violet::SharedPtr<opentelemetry::logs::Logger> otel) noexcept;
+
+    ~OpenTelemetry() override;
+
+    /// @see logrin::AsyncSink::Enqueue(const logrin::LogRecord&)
+    void Enqueue(const LogRecord& record) override;
+
+    /// @see logrin::AsyncSink::Flush()
+    void Flush() noexcept override;
+
+private:
+    std::thread n_worker;
+    std::mutex n_mux;
+    std::condition_variable n_cv;
+    std::queue<LogRecord> n_queue;
+    std::atomic<bool> n_running;
+    violet::SharedPtr<opentelemetry::logs::Logger> n_otel;
+
+    void workerLoop();
+    auto logRecordToOpenTelemetry(const LogRecord& record) noexcept
+        -> violet::UniquePtr<opentelemetry::logs::LogRecord>;
+};
+
+} // namespace logrin::sinks

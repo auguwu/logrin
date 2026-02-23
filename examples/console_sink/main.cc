@@ -30,9 +30,7 @@ using namespace logrin::sinks::console::formatters; // NOLINT(google-build-using
 
 auto main() -> int
 {
-    violet::SharedPtr<Console> console = std::make_shared<Console>();
-    console->WithFormatter<Azalia>();
-
+    violet::SharedPtr<Console> console = std::make_shared<Console>(Console::Stream::Stdout, Azalia());
     violet::SharedPtr<Console> console2 = std::make_shared<Console>(Console::Stream::Stderr, Json());
     LogFactory::Init(LogLevel::Info, { console, console2 });
 

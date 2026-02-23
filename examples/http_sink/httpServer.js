@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// @ts-check
-
 /**
  * 🐻‍❄️🏳️‍⚧️ Logrin: Modern, async-aware logging framework for C++20
  * Copyright (c) 2026 Noel Towa <cutie@floofy.dev>, et al.
@@ -25,6 +23,7 @@
  * SOFTWARE.
  */
 
+// @ts-check
 // this is just a simple echo server using Node's `http.createServer`.
 
 import { createServer } from 'node:http';

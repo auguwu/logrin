@@ -19,12 +19,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# TODO(@auguwu/Noel): Use `https://bcr.noelware.cloud` once available
+common --registry=https://raw.githubusercontent.com/Noelware/bazel-registry/master/
+common --registry=https://bcr.bazel.build
+
 # For `--config=dbg`, we set `--compilation_mode` to `dbg`
 build:dbg --compilation_mode=dbg
-build:dbg --cxxopt=-g
-build:dbg --host_cxxopt=-g
-build:dbg --cxxopt=-O0
-build:dbg --host_cxxopt=-O0
 
 # For `--config=opt`, we set `--compilation_mode` to `opt`
 build:opt --compilation_mode=opt
@@ -53,9 +53,21 @@ build:libcxx --linkopt=-stdlib=libc++
 build:libcxx --linkopt=-lc++
 build:libcxx --linkopt=-lc++abi
 
+# `--config=host-libcxx` (C++): Enables compilation and linking with libc++ on the host platform
+build:host-libcxx --host_cxxopt=-stdlib=libc++
+build:host-libcxx --host_linkopt=-stdlib=libc++
+build:host-libcxx --host_linkopt=-lc++
+build:host-libcxx --host_linkopt=-lc++abi
+
 # C++ (macOS, Linux): Disable warnings that are annoying
 build:linux --cxxopt=-Wno-unused-command-line-argument
+build:linux --host_cxxopt=-Wno-unused-command-line-argument
 build:macos --cxxopt=-Wno-unused-command-line-argument
+build:macos --host_cxxopt=-Wno-unused-command-line-argument
+build:linux --cxxopt=-Wno-#warnings
+build:linux --host_cxxopt=-Wno-#warnings
+build:macos --cxxopt=-Wno-#warnings
+build:macos --host_cxxopt=-Wno-#warnings
 
 # --config=cxx20: Test with C++20 (Linux, macOS)
 build:cxx20 --cxxopt=-std=c++20

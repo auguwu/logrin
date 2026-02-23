@@ -42,8 +42,6 @@ struct VIOLET_API Json final: public Formatter {
 private:
     bool n_pretty = false;
     violet::Int32 n_indent = 4;
-
-    static auto intoJson(const LogRecord& record) noexcept -> nlohmann::json;
 };
 
 } // namespace logrin::sinks::console::formatters

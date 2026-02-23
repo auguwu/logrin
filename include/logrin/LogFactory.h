@@ -31,12 +31,52 @@ namespace logrin {
 struct Sink;
 struct AsyncSink;
 
+/// A factory-style way for constructing and managing loggers.
+///
+/// `logrin::LogFactory` provides a centralized way to obtain loggers by name,
+/// configure logging sinks (both sync and async), and manage the global logging
+/// lifecycle.
+///
+/// ## Example
+/// ```cpp
+/// #include <logrin/Sinks/Console/Formatter/Azaila.h>
+/// #include <logrin/Sinks/Console.h>
+/// #include <logrin/LogFactory.h>
+///
+/// using logrin::sinks::console::formatters::Azalia;
+/// using logrin::sinks::Console;
+/// using logrin::LogFactory;
+///
+/// LogFactory::Init(
+///     logrin::LogLevel::Info,                  // global log level for all loggers
+///     { std::make_shared<Console>(Azalia{}) }, // sync sinks
+///     {}                                       // async sinks
+/// );
+///
+/// auto log = LogFactory::Get("my::logger");
+/// log.Info("Hello, world!");
+/// ```
 struct VIOLET_API LogFactory final {
+    /// Retrieves a logger with the specified name.
+    ///
+    /// If the logger doesn't exist already, it'll be created and stored internally.
+    /// If the log factory was not initialized, it'll return a dummy logger that doesn't log anything.
+    ///
+    /// @param name unique name of the logger to retrieve.
+    /// @returns logger instance corresponding to the requested name.
     static auto Get(violet::Str name) noexcept -> Logger;
 
+    /// Initializes the logging system.
+    ///
+    /// Configures the global log level, synchronous sinks, and asynchronous sinks.
+    ///
+    /// @param level global log level.
+    /// @param sinks list of synchronous sinks for log output.
+    /// @param asyncSinks list of asynchronous sinks for log output.
     static void Init(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks = {},
         std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = {}) noexcept;
 
+    /// Shuts down the logging system, flushing any pending asynchronous logs.
     static void Shutdown() noexcept;
 
 private:

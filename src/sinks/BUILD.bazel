@@ -53,6 +53,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:async_sink",
+        "@otel//api",
+        "@otel//sdk:headers",
         "@violet//violet",
     ],
 )

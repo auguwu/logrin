@@ -41,60 +41,6 @@ auto Json::WithPretty(bool yes) noexcept -> Json&
 
 auto Json::Format(const LogRecord& record) const noexcept -> violet::String
 {
-    auto value = intoJson(record);
+    auto value = record.AsJson();
     return std::format("{}\n", value.dump(this->n_pretty ? this->n_indent : -1, ' ', true));
-}
-
-auto Json::intoJson(const LogRecord& record) noexcept -> nlohmann::json
-{
-    auto tt = std::chrono::system_clock::to_time_t(record.Timestamp);
-    auto gmt = *std::gmtime(&tt);
-
-    char buf[64];
-    if (std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &gmt) == 0) {
-        buf[0] = '\0';
-    }
-
-    nlohmann::json value;
-    value["@timestamp"] = violet::String(buf);
-    value["message"] = record.Message;
-
-    nlohmann::json log;
-    log["logger"] = record.Logger;
-    log["level"] = violet::ToString(record.Level);
-
-    value["log"] = log;
-
-    nlohmann::json src;
-    src["file"] = record.Location.file_name();
-    src["line"] = record.Location.line();
-    src["column"] = record.Location.column();
-    src["function"] = violet::util::DemangleCXXName(record.Location.function_name());
-    value["source"] = src;
-
-    nlohmann::json fields;
-    for (const auto& [name, field]: record.Fields) {
-        nlohmann::json fieldValue;
-        if (field.Is<bool>()) {
-            fieldValue = *field.As<bool>();
-        } else if (field.Is<violet::Int64>()) {
-            fieldValue = *field.As<violet::Int64>();
-        } else if (field.Is<violet::UInt64>()) {
-            fieldValue = *field.As<violet::UInt64>();
-        } else if (field.Is<double>()) {
-            fieldValue = *field.As<double>();
-        } else if (field.Is<violet::String>()) {
-            fieldValue = *field.As<violet::String>();
-        }
-
-        if (!fieldValue.is_null()) {
-            fields[name] = fieldValue;
-        }
-    }
-
-    if (!fields.is_null()) {
-        value["attributes"] = fields;
-    }
-
-    return value;
 }

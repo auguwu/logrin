@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
 #include <violet/Violet.h>
 
 #include <chrono>
@@ -137,6 +138,9 @@ struct VIOLET_API LogRecord final {
         this->Fields.emplace(std::make_pair(violet::String(name), VIOLET_MOVE(value)));
         return *this;
     }
+
+    /// Transforms this [`LogRecord`] into a JSON object.
+    [[nodiscard]] auto AsJson() const noexcept -> nlohmann::json;
 };
 
 } // namespace logrin

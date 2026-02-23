@@ -64,10 +64,6 @@ build:linux --cxxopt=-Wno-unused-command-line-argument
 build:linux --host_cxxopt=-Wno-unused-command-line-argument
 build:macos --cxxopt=-Wno-unused-command-line-argument
 build:macos --host_cxxopt=-Wno-unused-command-line-argument
-build:linux --cxxopt=-Wno-#warnings
-build:linux --host_cxxopt=-Wno-#warnings
-build:macos --cxxopt=-Wno-#warnings
-build:macos --host_cxxopt=-Wno-#warnings
 
 # --config=cxx20: Test with C++20 (Linux, macOS)
 build:cxx20 --cxxopt=-std=c++20

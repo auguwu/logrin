@@ -38,13 +38,11 @@ dirs=(
     "include"
     "src"
     "tests"
-    "patches"
 )
 
 files=(
     ".logrin-version"
     "BUILD.bazel"
-    "dummy.cc"
     "README.md"
     "LICENSE"
 )
@@ -58,10 +56,6 @@ for dir in "${dirs[@]}"; do
 
         version=$(cat "$SCRIPT_DIR/.logrin-version")
         sed -i "s/^VERSION = \".*\"/VERSION = \"$version\"/" "$SCRIPT_DIR/.bazeldist/bazel/version.bzl"
-    fi
-
-    if [ "$dir" == "patches" ]; then
-        rm "$SCRIPT_DIR/.bazeldist/patches/000_hedron_compile_commands__fix_assertion.patch"
     fi
 done
 
@@ -108,14 +102,34 @@ deps=(
     "bazel/deps/cc.MODULE.bazel"
 )
 
-for depfile in "${deps[@]}"; do
-    awk '
-        FNR==1 { skipping = 1 }
-        skipping && (/^#/ || /^$/) { next }
-        skipping { skipping = 0 }
-        { print } ENDFILE { print "" }
-    ' "$SCRIPT_DIR/$depfile" >> "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
-done
+awk '
+    FNR==1 { skipping = 1 }
+    skipping && (/^#/ || /^$/) { next }
+    skipping { skipping = 0 }
+    { print } ENDFILE { print "" }
+' "$SCRIPT_DIR/bazel/deps/bzl.MODULE.bazel" >> "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
+
+awk '
+    # skip top-level comments (which is the license header)
+    FNR==1 { skipping = 1 }
+    skipping && (/^#/ || /^$/) { next }
+    skipping { skipping = 0 }
+
+    # skip comment lines right before protobuf dep
+    /^##.*otel_sink/ { next }
+    /^##.*Protobuf/ { next }
+
+    # skip the bazel_dep protobuf block
+    /^bazel_dep\(name *= *"protobuf"/ { s=1; next }
+    s && /^\)/ { s=0; next }
+
+    # skip the single_version_override protobuf block
+    /^single_version_override\(.*protobuf/ { s2=1; next }
+    s2 && /^\)/ { s2=0; next }
+
+    # print everything else
+    !s && !s2
+' "$SCRIPT_DIR/bazel/deps/cc.MODULE.bazel" >> "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
 
 awk '
   /^load\("@hedron_compile_commands\/\// { next }

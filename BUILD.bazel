@@ -21,7 +21,6 @@
 
 load("@hedron_compile_commands//:refresh_compile_commands.bzl", "refresh_compile_commands")
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//bazel:cc.bzl", logrin_cc_library = "cc_library")
 load("//bazel/flags:defs.bzl", "FLAGS")
 
 refresh_compile_commands(
@@ -32,31 +31,6 @@ cc_library(
     name = "include_hack",
     includes = ["include"],
     visibility = ["//:__subpackages__"],
-)
-
-# Add a "uber" library that combines everything into a single library
-logrin_cc_library(
-    name = "logrin",
-    srcs = ["dummy.cc"],
-    linkstatic = 0,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src:async_sink",
-        "//src:log_factory",
-        "//src:log_record",
-        "//src:logger",
-        "//src:sink",
-        "//src/sinks:console",
-        "//src/sinks/console:azalia",
-        "//src/sinks/console:json",
-        "@violet//violet:macros",
-    ] + select({
-        "//bazel/flags:http_sink_enabled": ["//src/sinks:http"],
-        "//conditions:default": [],
-    }) + select({
-        "//bazel/flags:otel_sink_enabled": ["//src/sinks:opentelemetry"],
-        "//conditions:default": [],
-    }),
 )
 
 # Alias all flags so that `@logrin//:otel_sink=True` works as well

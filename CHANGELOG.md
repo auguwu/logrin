@@ -6,10 +6,15 @@ availableAt:
 ---
 
 ### unreleased
-- Bump **Noelware.Violet** frameworks to 26.03.04
-- Add OpenTelemetry support
+**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...master>
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.02...master>
+### 26.02.04
+- Bump **Noelware.Violet** frameworks to 26.03.04
+- Add OpenTelemetry sink support
+- Remove `otel_sink` and `http_sink` flags
+- Removed the "uber" library
+
+**Git History**: <https://github.com/Noelware/violet/compare/26.02.03...26.02.04>
 
 ### 26.02.03
 - Fix errors when using references in **Console::WithFormatter** (@auguwu)

@@ -6,7 +6,29 @@ availableAt:
 ---
 
 ### unreleased
+- Bump **Noelware.Violet** frameworks to 26.03.04
+- Add OpenTelemetry support
+
 **Git History**: <https://github.com/Noelware/violet/compare/26.02...master>
+
+### 26.02.03
+- Fix errors when using references in **Console::WithFormatter** (@auguwu)
+- Add more safe guards for using `LogLevel::Off` in the log factory (@auguwu)
+- Fix UAF in `LogFactory::Shutdown` (@auguwu)
+
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02.02...26.02.03>
+
+### 26.02.02
+- Don't assert if no log factory was ever initialized, just provide a dummy logger instead (@auguwu)
+- Add **LogLevel::Off** to turn off all logging (@auguwu)
+- Bump **Noelware.Violet** frameworks to 26.03.04 (@auguwu)
+
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02.01...26.02.02>
+
+### 26.02.01
+- Bump **Noelware.Violet** frameworks to 26.03 (@auguwu)
+
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02...26.02.01>
 
 ### 26.02
 - Bump **Noelware.Violet** frameworks to 26.02.03

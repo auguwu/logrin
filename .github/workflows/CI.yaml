@@ -31,6 +31,7 @@ on:
         paths-ignore:
             - '.github/**'
             - '.vscode/**'
+            - 'hack/**'
             - '.ci/**'
             - 'nix/**'
 

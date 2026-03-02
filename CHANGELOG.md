@@ -6,7 +6,13 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...master>
+**Git History**: <https://github.com/Noelware/violet/compare/26.03.05...master>
+
+### 26.02.05
+- Bump **Noelware.Violet** frameworks to 26.03.09
+- Allow log method (i.e, `Logger::Log`, `Logger::Warn`) be used in `const` contexts
+
+**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...26.03.05>
 
 ### 26.02.04
 - Bump **Noelware.Violet** frameworks to 26.03.04

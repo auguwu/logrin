@@ -30,9 +30,9 @@ using logrin::Sink;
 
 using violet::Str;
 
-LogEntry::LogEntry(Logger* logger, LogRecord record, bool emit) noexcept
-    : n_record(VIOLET_MOVE(record))
-    , n_parent(logger)
+LogEntry::LogEntry(const Logger* logger, LogRecord record, bool emit) noexcept
+    : n_parent(logger)
+    , n_record(VIOLET_MOVE(record))
     , n_emit(emit)
 {
 }
@@ -93,7 +93,7 @@ auto Logger::Name() const noexcept -> violet::Str
     return this->n_name;
 }
 
-auto Logger::Log(LogRecord record) noexcept -> LogEntry
+auto Logger::Log(LogRecord record) const noexcept -> LogEntry
 {
     record.Logger = this->Name();
     return LogEntry(this, record);

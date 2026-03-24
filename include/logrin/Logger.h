@@ -25,6 +25,7 @@
 #include <violet/SourceLocation.h>
 #include <violet/Violet.h>
 
+#include <source_location>
 #include <type_traits>
 
 namespace logrin {
@@ -153,7 +154,8 @@ struct VIOLET_API Logger final {
     /// @param loc source location, defaults to the caller.
     /// @returns a `LogEntry` for further attribute attachment.
     template<std::convertible_to<violet::Str> Msg>
-    auto Log(LogLevel level, Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Log(LogLevel level, Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept
+        -> LogEntry
     {
         if (!this->Enabled(level)) {
             return LogEntry(nullptr, LogRecord{}, false);
@@ -164,42 +166,42 @@ struct VIOLET_API Logger final {
 
     /// Convenience method: logs a Trace-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Trace(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Trace(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Trace, VIOLET_FWD(Msg, message), loc));
     }
 
     /// Convenience method: logs a Debug-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Debug(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Debug(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Debug, VIOLET_FWD(Msg, message), loc));
     }
 
     /// Convenience method: logs a Info-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Info(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Info(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Info, VIOLET_FWD(Msg, message), loc));
     }
 
     /// Convenience method: logs a Warning-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Warn(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Warn(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Warning, VIOLET_FWD(Msg, message), loc));
     }
 
     /// Convenience method: logs a Error-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Error(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Error(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Error, VIOLET_FWD(Msg, message), loc));
     }
 
     /// Convenience method: logs a Fatal-level message.
     template<std::convertible_to<violet::Str> Msg>
-    auto Fatal(Msg&& message, violet::SourceLocation loc = {}) const noexcept -> LogEntry
+    auto Fatal(Msg&& message, violet::SourceLocation loc = std::source_location::current()) const noexcept -> LogEntry
     {
         return this->Log(LogRecord::Now(LogLevel::Fatal, VIOLET_FWD(Msg, message), loc));
     }

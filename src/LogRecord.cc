@@ -34,9 +34,9 @@ auto now() noexcept -> logrin::TimePoint
 
 } // namespace
 
-auto LogRecord::Now(LogLevel level, Str message, const std::source_location& loc) noexcept -> LogRecord
+auto LogRecord::Now(LogLevel level, Str message, violet::SourceLocation loc) noexcept -> LogRecord
 {
-    return { .Timestamp = now(), .Level = level, .Message = message, .Location = loc };
+    return { .Timestamp = now(), .Level = level, .Message = message, .Fields = {}, .Location = loc };
 }
 
 auto LogRecord::WithLogger(Str name) noexcept -> LogRecord&
@@ -66,26 +66,40 @@ auto LogRecord::AsJson() const noexcept -> nlohmann::json
     value["log"] = log;
 
     nlohmann::json src;
-    src["file"] = this->Location.file_name();
-    src["line"] = this->Location.line();
-    src["column"] = this->Location.column();
-    src["function"] = this->Location.function_name();
-    value["source"] = src;
+    if (!this->Location.File.empty()) {
+        src["file"] = this->Location.File;
+    }
+
+    if (this->Location.Line > 0) {
+        src["line"] = this->Location.Line;
+    }
+
+    if (this->Location.Column > 0) {
+        src["column"] = this->Location.Column;
+    }
+
+    if (!this->Location.Function.empty()) {
+        src["function"] = this->Location.Function;
+    }
+
+    if (!src.empty()) {
+        value["source"] = src;
+    }
 
     nlohmann::json fields;
     for (const auto& [name, field]: this->Fields) {
         nlohmann::json fieldValue;
-        if (field.Is<bool>()) {
-            fieldValue = *field.As<bool>();
-        } else if (field.Is<violet::Int64>()) {
-            fieldValue = *field.As<violet::Int64>();
-        } else if (field.Is<violet::UInt64>()) {
-            fieldValue = *field.As<violet::UInt64>();
-        } else if (field.Is<double>()) {
-            fieldValue = *field.As<double>();
-        } else if (field.Is<violet::String>()) {
-            fieldValue = *field.As<violet::String>();
-        }
+
+        // clang-format off
+        field.n_data.Match(
+            [](std::monostate) -> void {},
+            [&fieldValue](const bool& value) -> void { fieldValue = value; },
+            [&fieldValue](const violet::UInt64& num) -> void { fieldValue = num; },
+            [&fieldValue](const violet::Int64& num) -> void { fieldValue = num; },
+            [&fieldValue](const violet::String& num) -> void { fieldValue = num; },
+            [&fieldValue](const double& num) -> void { fieldValue = num; }
+        );
+        // clang-format on
 
         if (!fieldValue.is_null()) {
             fields[name] = fieldValue;

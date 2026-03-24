@@ -21,11 +21,10 @@
 
 #pragma once
 
-#include "opentelemetry/logs/log_record.h"
-#include "opentelemetry/logs/logger.h"
-
 #include <logrin/AsyncSink.h>
 #include <logrin/LogRecord.h>
+#include <opentelemetry/logs/log_record.h>
+#include <opentelemetry/logs/logger.h>
 #include <violet/Violet.h>
 
 #include <queue>
@@ -33,8 +32,40 @@
 
 namespace logrin::sinks {
 
+/// Forwards log records to an OpenTelemetry logger.
+///
+/// `OpenTelemetry` bridges Logrin's structured logging with the
+/// [OpenTelemetry Logs data model](https://opentelemetry.io/docs/specs/otel/logs/data-model/).
+///
+/// Each enqueued [`LogRecord`][logrin::LogRecord] is translated into an
+/// `opentelemetry::logs::LogRecord` and submitted through the configured logger on a
+/// dedicated background thread.
+///
+/// The sink owns a single worker thread that drains the internal queue. The thread
+/// is started during construction and joined during destruction, ensuring no records
+/// are silently dropped on shutdown.
+///
+/// ## Example
+/// ```cpp
+/// // Acquire a sink for the "my-service" instrumentation scope.
+/// auto sink = std::make_shared<logrin::sinks::OpenTelemetry>("my-service");
+///
+/// logrin::Logger logger("root");
+/// logger.AddSink(sink);
+/// ```
 struct OpenTelemetry final: public AsyncSink {
+    /// Constructs an `OpenTelemetry` sink by acquiring a logger from the global
+    /// `LoggerProvider` using `tag` as the instrumentation-scope name.
+    ///
+    /// @param tag the instrumentation-scope name passed to `LoggerProvider::GetLogger`
     VIOLET_IMPLICIT OpenTelemetry(violet::Str tag) noexcept;
+
+    /// Constructs an `OpenTelemetry` sink from an existing logger instance.
+    ///
+    /// Ownership of `otel` is shared with the sink. The provided logger must
+    /// remain valid for the lifetime of this sink.
+    ///
+    /// @param otel a shared pointer to a configured `opentelemetry::logs::Logger`
     VIOLET_IMPLICIT OpenTelemetry(violet::SharedPtr<opentelemetry::logs::Logger> otel) noexcept;
 
     ~OpenTelemetry() override;

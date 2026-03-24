@@ -73,10 +73,20 @@ void Console::Emit(const LogRecord& record)
             // when shit hits the fan. So, this will write to `std::cerr`, and if that fails,
             // then it's not my problem anymore.
             if (res.Err()) {
-                std::cerr << "[logrin@fatal:" << record.Location.file_name() << ":" << record.Location.line()
-                          << record.Location.column()
-                          << "]: received fatal error when writing to stream: " << VIOLET_MOVE(res.Error()).ToString()
-                          << '\n';
+                std::cerr << "[logrin@fatal";
+                if (!record.Location.File.empty()) {
+                    std::cerr << ':' << record.Location.File;
+                }
+
+                if (record.Location.Line > 0) {
+                    std::cerr << ':' << record.Location.Line;
+                }
+
+                if (record.Location.Column > 0) {
+                    std::cerr << ':' << record.Location.Column;
+                }
+
+                std::cerr << "]: received fatal error when writing to stream: " << res.Error() << '\n';
             }
         }
     }

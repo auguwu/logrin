@@ -29,6 +29,8 @@ cc_library(
     deps = [
         "@nlohmann_json//:json",
         "@violet//violet",
+        "@violet//violet:source_location",
+        "@violet//violet/experimental:oneof",
         "@violet//violet/support:demangle",
     ],
 )
@@ -73,5 +75,6 @@ cc_library(
         ":async_sink",
         ":sink",
         "@violet//violet",
+        "@violet//violet:source_location",
     ],
 )

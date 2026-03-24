@@ -6,13 +6,19 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/Noelware/violet/compare/26.03.05...master>
+**Git History**: <https://github.com/Noelware/violet/compare/26.03...master>
+
+### 26.03
+- Bump **Noelware.Violet** frameworks to 26.04.05
+- Use **violet::SourceLocation** over **std::source_location** for finer grain locations (i.e, for bridging other logging frameworks that also have source locations)
+
+**Git History**: <https://github.com/Noelware/violet/compare/26.02.05...26.03>
 
 ### 26.02.05
 - Bump **Noelware.Violet** frameworks to 26.03.09
 - Allow log method (i.e, `Logger::Log`, `Logger::Warn`) be used in `const` contexts
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...26.03.05>
+**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...26.02.05>
 
 ### 26.02.04
 - Bump **Noelware.Violet** frameworks to 26.03.04

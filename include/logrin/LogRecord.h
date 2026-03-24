@@ -22,6 +22,8 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include <violet/Experimental/OneOf.h>
+#include <violet/SourceLocation.h>
 #include <violet/Violet.h>
 
 #include <chrono>
@@ -52,7 +54,10 @@ struct VIOLET_API AttributeValue final {
     /// Constructs an empty attribute value.
     ///
     /// The resulting value holds no data (`std::monostate`).
-    constexpr VIOLET_IMPLICIT AttributeValue() noexcept = default;
+    constexpr VIOLET_IMPLICIT AttributeValue() noexcept
+        : n_data(std::monostate{})
+    {
+    }
 
     /// Constructs a boolean attribute value.
     constexpr VIOLET_IMPLICIT AttributeValue(bool value) noexcept
@@ -63,14 +68,14 @@ struct VIOLET_API AttributeValue final {
     /// Constructs a signed 64-bit integer attribute value.
     template<std::convertible_to<violet::Int64> T>
     constexpr VIOLET_IMPLICIT AttributeValue(violet::Int64 value) noexcept
-        : n_data(value)
+        : n_data(violet::Int64(value)) // NOLINT(google-readability-casting,readability-redundant-casting)
     {
     }
 
     /// Constructs an unsigned 64-bit integer attribute value.
     template<std::convertible_to<violet::UInt64> T>
     constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
-        : n_data(value)
+        : n_data(violet::UInt64(value))
     {
     }
 
@@ -85,7 +90,7 @@ struct VIOLET_API AttributeValue final {
     /// Ownership of the string is taken by value.
     template<std::convertible_to<violet::String> T>
     constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
-        : n_data(value)
+        : n_data(violet::String(value))
     {
     }
 
@@ -93,18 +98,21 @@ struct VIOLET_API AttributeValue final {
     template<typename T>
     [[nodiscard]] constexpr auto Is() const noexcept -> bool
     {
-        return std::holds_alternative<T>(this->n_data);
+        return this->n_data.Holds<T>();
     }
 
     /// Returns a pointer to the attribute's value if it is represented by type `T`
     template<typename T>
-    constexpr auto As() const noexcept -> const T*
+    constexpr auto As() const noexcept -> violet::Optional<const T&>
     {
-        return std::get_if<T>(&this->n_data);
+        return this->n_data.Get<T>();
     }
 
 private:
-    using value_t = std::variant<std::monostate, bool, violet::Int64, violet::UInt64, double, violet::String>;
+    friend struct LogRecord;
+
+    using value_t
+        = violet::experimental::OneOf<std::monostate, bool, violet::Int64, violet::UInt64, double, violet::String>;
 
     value_t n_data;
 };
@@ -120,11 +128,10 @@ struct VIOLET_API LogRecord final {
     violet::Str Message; ///< primary log message
     violet::UnorderedMap<violet::String, AttributeValue> Fields; ///< structured key-value pairs attached to the record
     violet::Str Logger; ///< name of the logger that emitted this record
-    std::source_location Location; ///< source location where this log was emitted
+    violet::SourceLocation Location; ///< source location where this log was emitted
 
     /// Constructs a [`LogRecord`] that sets the timestamp
-    static auto Now(LogLevel level, violet::Str message,
-        const std::source_location& loc = std::source_location::current()) noexcept -> LogRecord;
+    static auto Now(LogLevel level, violet::Str message, violet::SourceLocation loc = {}) noexcept -> LogRecord;
 
     /// Sets the `logger` field.
     /// @param name the logger's name

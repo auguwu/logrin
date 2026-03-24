@@ -9,7 +9,7 @@ availableAt:
 **Git History**: <https://github.com/Noelware/violet/compare/26.03...master>
 
 ### 26.03
-- Bump **Noelware.Violet** frameworks to 26.04.05
+- Bump **Noelware.Violet** frameworks to 26.04.06
 - Use **violet::SourceLocation** over **std::source_location** for finer grain locations (i.e, for bridging other logging frameworks that also have source locations)
 
 **Git History**: <https://github.com/Noelware/violet/compare/26.02.05...26.03>

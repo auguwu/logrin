@@ -35,6 +35,9 @@ on:
             - '.ci/**'
             - 'nix/**'
 
+            - 'tools/bazeldist'
+            - 'tools/hotpatch-release.py'
+
             - CHANGELOG.md
             - renovate.json
             - flake.lock

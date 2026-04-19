@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "logrin/detail/config.h"
+
 #include <logrin/LogRecord.h>
 #include <logrin/Sinks/Console/Formatter.h>
 #include <violet/Support/Terminal.h>
@@ -32,7 +34,7 @@ namespace logrin::sinks::console::formatters {
 ///
 /// See:
 /// <https://github.com/Noelware/azalia/blob/61ab79859a014cd7c2c45bbdd9d4925a6a896bc0/crates/log/src/writers/default.rs>
-struct VIOLET_API Azalia final: public Formatter {
+struct LOGRIN_API Azalia final: public Formatter {
     VIOLET_IMPLICIT Azalia() noexcept = default;
 
     auto WithTimestampFormat(violet::Str fmt) noexcept -> Azalia&;

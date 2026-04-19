@@ -141,7 +141,9 @@ auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
         if (value.Is<violet::UInt64>()) {
             // OpenTelemetry specification doesn't support uint64_t, so we'll do
             // a lossly conversion.
-            violet::UInt64 num = *value.As<violet::UInt64>();
+            violet::UInt64 num = value.As<violet::UInt64>().UnwrapUnchecked(
+                violet::Unsafe("we are already in the case where this should never fail"));
+
             VIOLET_ASSERT(num <= std::numeric_limits<violet::Int64>::max(),
                 "lossly conversion not possible: reached max limit of int64");
 

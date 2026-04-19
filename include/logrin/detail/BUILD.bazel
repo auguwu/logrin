@@ -19,37 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@minato//:rcc.bzl", "minato")
-load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//bazel/flags:defs.bzl", "FLAGS")
-
-minato(
-    name = "rcc",
-)
-
-cc_library(
-    name = "include_hack",
-    includes = ["include"],
+exports_files(
+    glob(["*.h"]),
     visibility = ["//:__subpackages__"],
 )
-
-cc_library(
-    name = "config",
-    hdrs = ["//include/logrin/detail:config.h"],
-    local_defines = select({
-        "//bazel/flags:win32_dllexport_enabled": ["LOGRIN_WIN32_DLLEXPORT"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "@violet//violet:macros",
-        "@violet//violet:policy_checks",
-    ],
-)
-
-# Alias all flags so that `@logrin//:otel_sink=True` works as well
-[alias(
-    name = name,
-    actual = "//bazel/flags:%s" % name,
-    visibility = ["//visibility:public"],
-) for name in FLAGS]

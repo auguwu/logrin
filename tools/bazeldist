@@ -91,7 +91,6 @@ cat <<EOF > "$SCRIPT_DIR/.bazeldist/MODULE.bazel"
 module(
     name = "logrin",
     version = "$VERSION",
-    compatibility_level = 0,
     repo_name = "dev_floofy_logrin",
 )
 

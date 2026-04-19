@@ -23,7 +23,9 @@
   stdenv,
   lib,
   stdenvAdapters,
+  llvmPackages_20,
   llvmPackages_21,
+  llvmPackages_22,
   ## os-specific
   ### - linux
   valgrind,
@@ -50,7 +52,7 @@
 }: let
   inherit
     (import ./lib/common.nix {
-      inherit stdenv llvmPackages_21 stdenvAdapters lib;
+      inherit stdenv stdenvAdapters lib llvmPackages_20 llvmPackages_21 llvmPackages_22;
     })
     llvm
     ;

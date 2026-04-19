@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "detail/config.h"
 #include <logrin/LogRecord.h>
 
 namespace logrin {
@@ -35,7 +36,7 @@ namespace logrin {
 /// Implementations of [`logrin::Sink`] should usually be thread-safe unless explicitly documentated
 /// else-where if whether or not this requirement must be met. Logrin may call [`Sink::Emit`] concurrently
 /// from multiple threads.
-struct VIOLET_API Sink {
+struct LOGRIN_API Sink {
     /// Destructor of a sink.
     ///
     /// Implementations should ensure that all resources are released and any
@@ -55,7 +56,7 @@ struct VIOLET_API Sink {
     /// The default implementation does nothing. Sinks that buffer output
     /// such as file or network sinks, should override this method to ensure
     /// that all pending data is written.
-    virtual void Flush() noexcept {}
+    virtual void Flush() noexcept { }
 };
 
 } // namespace logrin

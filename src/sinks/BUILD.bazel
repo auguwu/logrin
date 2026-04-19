@@ -19,9 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("//bazel:cc.bzl", "cc_library")
+load("//bazel:cc.bzl", "logrin_cc_library")
 
-cc_library(
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+logrin_cc_library(
     name = "console",
     srcs = ["Console.cc"],
     hdrs = ["//include/logrin/Sinks:Console.h"],
@@ -34,7 +38,7 @@ cc_library(
     ],
 )
 
-cc_library(
+logrin_cc_library(
     name = "http",
     srcs = ["Http.cc"],
     hdrs = ["//include/logrin/Sinks:Http.h"],
@@ -46,7 +50,7 @@ cc_library(
     ],
 )
 
-cc_library(
+logrin_cc_library(
     name = "opentelemetry",
     srcs = ["OpenTelemetry.cc"],
     hdrs = ["//include/logrin/Sinks:OpenTelemetry.h"],

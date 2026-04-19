@@ -36,7 +36,7 @@ auto now() noexcept -> logrin::TimePoint
 
 auto LogRecord::Now(LogLevel level, Str message, violet::SourceLocation loc) noexcept -> LogRecord
 {
-    return { .Timestamp = now(), .Level = level, .Message = message, .Fields = {}, .Location = loc };
+    return { .Timestamp = now(), .Level = level, .Message = message, .Fields = { }, .Location = loc };
 }
 
 auto LogRecord::WithLogger(Str name) noexcept -> LogRecord&
@@ -92,7 +92,7 @@ auto LogRecord::AsJson() const noexcept -> nlohmann::json
 
         // clang-format off
         field.n_data.Match(
-            [](std::monostate) -> void {},
+            [](violet::experimental::Mono) -> void {},
             [&fieldValue](const bool& value) -> void { fieldValue = value; },
             [&fieldValue](const violet::UInt64& num) -> void { fieldValue = num; },
             [&fieldValue](const violet::Int64& num) -> void { fieldValue = num; },

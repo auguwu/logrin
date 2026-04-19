@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "logrin/detail/config.h"
+
 #include <logrin/Sink.h>
 #include <logrin/Sinks/Console/Formatter.h>
 #include <violet/IO/Descriptor.h>
@@ -59,7 +61,7 @@ namespace logrin::sinks {
 ///
 /// logger.Info("Hello, world!");
 /// ```
-struct VIOLET_API Console final: public Sink {
+struct LOGRIN_API Console final: public Sink {
     VIOLET_DISALLOW_MOVE(Console);
     ~Console() override = default;
 

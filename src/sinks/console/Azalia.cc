@@ -73,7 +73,7 @@ constexpr auto levelToStyle(LogLevel level) -> Style
 
 constexpr void writeAttrValue(std::ostream& os, const AttributeValue& value) noexcept
 {
-    if (value.Is<std::monostate>()) {
+    if (value.Is<violet::experimental::Mono>()) {
         os << "{null}";
         return;
     }

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "detail/config.h"
+
 #include <logrin/LogRecord.h>
 #include <violet/SourceLocation.h>
 #include <violet/Violet.h>
@@ -38,7 +40,7 @@ struct Logger;
 ///
 /// A `LogEntry` is a handle returned by `Logger` when logging a message.
 /// It allows attaching additional key/value attributes before the entry is emitted.
-struct VIOLET_API LogEntry final {
+struct LOGRIN_API LogEntry final {
     VIOLET_DISALLOW_CONSTEXPR_CONSTRUCTOR(LogEntry);
     VIOLET_DISALLOW_COPY_AND_MOVE(LogEntry);
 
@@ -72,7 +74,7 @@ private:
 ///
 /// Provides convenience methods for logging at different levels (Trace, Debug, Info, etc.).
 /// Supports adding synchronous and asynchronous sinks.
-struct VIOLET_API Logger final {
+struct LOGRIN_API Logger final {
     VIOLET_DISALLOW_CONSTRUCTOR(Logger);
     ~Logger() noexcept;
 
@@ -82,8 +84,8 @@ struct VIOLET_API Logger final {
     /// @param level minimum log level.
     /// @param sinks optional synchronous sinks.
     /// @param asyncSinks optional asynchronous sinks.
-    VIOLET_IMPLICIT Logger(violet::Str name, LogLevel level, std::initializer_list<Sink*> sinks = {},
-        std::initializer_list<AsyncSink*> asyncSinks = {}) noexcept;
+    VIOLET_IMPLICIT Logger(violet::Str name, LogLevel level, std::initializer_list<Sink*> sinks = { },
+        std::initializer_list<AsyncSink*> asyncSinks = { }) noexcept;
 
     /// Returns whether logging is enabled for a given level.
     [[nodiscard]] constexpr auto Enabled(LogLevel level) const noexcept -> bool
@@ -158,7 +160,7 @@ struct VIOLET_API Logger final {
         -> LogEntry
     {
         if (!this->Enabled(level)) {
-            return LogEntry(nullptr, LogRecord{}, false);
+            return LogEntry(nullptr, LogRecord{ }, false);
         }
 
         return this->Log(LogRecord::Now(level, VIOLET_FWD(Msg, message), loc));

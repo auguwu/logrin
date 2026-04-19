@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "logrin/detail/config.h"
+
 #include <logrin/AsyncSink.h>
 #include <logrin/LogRecord.h>
 #include <opentelemetry/logs/log_record.h>
@@ -53,7 +55,7 @@ namespace logrin::sinks {
 /// logrin::Logger logger("root");
 /// logger.AddSink(sink);
 /// ```
-struct OpenTelemetry final: public AsyncSink {
+struct LOGRIN_API OpenTelemetry final: public AsyncSink {
     /// Constructs an `OpenTelemetry` sink by acquiring a logger from the global
     /// `LoggerProvider` using `tag` as the instrumentation-scope name.
     ///

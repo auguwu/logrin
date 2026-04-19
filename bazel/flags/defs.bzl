@@ -19,6 +19,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+BOOL_FLAGS = {
+    "asan": {
+        "default": False,
+        "doc": "Enables the **Address** Sanitizer on each C++ target. Usually, this is meant for Bazel workspaces that don't provide custom C++ toolchain definitions.",
+    },
+    "msan": {
+        "default": False,
+        "doc": """Enables the **Memory** Sanitizer on each C++ target. Usually, this is meant for Bazel workspaces that don't provide custom C++ toolchain definitions.
+
+        When invoked on C++ targets, the C++ standard library implementation will require to be compiled with MemorySanitizer. This will always fail in libstdc++, but libc++
+        has MSan support, but you will need to compile it yourself; default toolchains of libc++ don't compile with MSan by default.""",
+    },
+    "static": {
+        "default": False,
+        "doc": "Only should be enabled on static builds.",
+    },
+    "tsan": {
+        "default": False,
+        "doc": "Enables the **Thread** Sanitizer on each C++ target. Usually, this is meant for Bazel workspaces that don't provide custom C++ toolchain definitions.",
+    },
+    "ubsan": {
+        "default": False,
+        "doc": "Enables the **Undefined Behaviour** Sanitizer on each C++ target. Usually, this is meant for Bazel workspaces that don't provide custom C++ toolchain definitions.",
+    },
+    "win32_dllexport": {
+        "default": False,
+        "doc": "When set to **true**, this will use `__declspec(dllexport)` on MSVC toolchains instead of `__declspec(dllimport)`. This is a no-op on non-MSVC toolchains.",
+    },
+}
+
 FLAGS = [
     "ubsan",
     "asan",

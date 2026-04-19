@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "logrin/detail/config.h"
+
 #include <violet/Violet.h>
 
 namespace logrin {
@@ -58,7 +60,7 @@ namespace logrin::sinks::console {
 /// logger.Info("Hello, world!");
 /// /// => [info] Hello, world!
 /// ```
-struct VIOLET_API Formatter {
+struct LOGRIN_API Formatter {
     /// Virtual destructor.
     ///
     /// Allows derived formatters to clean up properly when deleted

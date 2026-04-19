@@ -19,88 +19,152 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@rules_cc//cc:defs.bzl", cc_library_ = "cc_library", cc_test_ = "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load(":version.bzl", "DEVBUILD", "encode_as_int")
 
 SANITIZER_OPTS = select({
     "//bazel/flags:asan_enabled": ["-fsanitize=address"],
-    "//bazel/flags:msan_enabled": ["-fsanitize=memory"],
+    "//bazel/flags:msan_enabled": [
+        "-fsanitize=memory",
+        "-fsanitize-memory-track-origins",
+        "-fsanitize-memory-use-after-dtor",
+    ],
     "//bazel/flags:tsan_enabled": ["-fsanitize=thread"],
     "//bazel/flags:ubsan_enabled": ["-fsanitize=undefined"],
     "//conditions:default": [],
 })
 
-MSAN_OPTS = []
-UBSAN_OPTS = ["print_summary=1", "print_stacktrace=1"]
-ASAN_OPTS = ["print_summary=1"]
-TSAN_OPTS = ["print_summary=1"]
+UBSAN_OPTIONS = [
+    "halt_on_error=1",
+    "print_summary=1",
+    "print_stacktrace=1",
+]
+
+TSAN_OPTIONS = [
+    "halt_on_error=1",
+    "print_summary=1",
+    "second_deadlock_state=1",
+    "report_atomic_races=0",
+]
+
+MSAN_OPTIONS = [
+    "poison_in_dtor=1",
+]
+
+LSAN_OPTIONS = [
+    "report_objects=1",
+    "print_summary=1",
+]
+
+ASAN_OPTIONS = [
+    "detect_leaks=1",
+    "color=always",
+    "print_summary=1",
+]
 
 SANITIZER_ENV = select({
-    "//bazel/flags:ubsan_enabled": {"UBSAN_OPTIONS": ":".join(UBSAN_OPTS)},
+    "//bazel/flags:ubsan_enabled": {
+        "UBSAN_OPTIONS": ":".join(UBSAN_OPTIONS),
+    },
     "//conditions:default": {},
 }) | select({
-    "//bazel/flags:asan_enabled": {"ASAN_OPTIONS": ":".join(ASAN_OPTS)},
+    "//bazel/flags:asan_enabled": {
+        "ASAN_OPTIONS": ":".join(ASAN_OPTIONS),
+        "LSAN_OPTIONS": ":".join(LSAN_OPTIONS),
+    },
     "//conditions:default": {},
 }) | select({
-    "//bazel/flags:tsan_enabled": {"TSAN_OPTIONS": ":".join(TSAN_OPTS)},
+    "//bazel/flags:tsan_enabled": {
+        "TSAN_OPTIONS": ":".join(TSAN_OPTIONS),
+    },
     "//conditions:default": {},
 }) | select({
-    "//bazel/flags:tsan_enabled": {"MSAN_OPTIONS": ":".join(MSAN_OPTS)},
+    "//bazel/flags:tsan_enabled": {
+        "MSAN_OPTIONS": ":".join(MSAN_OPTIONS),
+    },
     "//conditions:default": {},
 })
 
 COMPILER_COPTS = select({
-    "@rules_cc//cc/compiler:clang": ["-DNOMINMAX"],
+    "@rules_cc//cc/compiler:clang": [
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        "-DNOMINMAX",
+    ],
     "@rules_cc//cc/compiler:clang-cl": ["-DNOMINMAX"],
-    "@rules_cc//cc/compiler:gcc": ["-DNOMINMAX"],
-    "@rules_cc//cc/compiler:msvc-cl": ["/DNOMINMAX", "/DWIN32_LEAN_AND_MEAN"],
+    "@rules_cc//cc/compiler:gcc": [
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        "-DNOMINMAX",
+    ],
+    "@rules_cc//cc/compiler:msvc-cl": [
+        "/DNOMINMAX",
+        "/DWIN32_LEAN_AND_MEAN",
+        "/Zc:dllexportInlines-",
+    ],
     "//conditions:default": [],
 })
 
-def cc_library(name, **kwargs):
-    copts = kwargs.pop("copts", [])
-    linkopts = kwargs.pop("linkopts", [])
+def logrin_cc_library(
+        name,
+        deps = [],
+        copts = [],
+        linkopts = [],
+        local_defines = [],
+        defines = [],
+        includes = [],
+        **kwargs):
+    """A `cc_library` wrapper for Logrin's internal targets.
 
-    deps = kwargs.pop("deps", [])
-
-    # buildifier: disable=list-append
-    deps += ["//:include_hack"]
+    This will:
+        - Add logrin's shared dependencies (`//:config`, `//:include_hack`)
+        - Set `LOGRIN_BUILDING` for producer-side macro dispatch
+        - Propagate `LOGRIN_STATIC` to consumers when static mode is active (`--@logrin//bazel/flags:static=True`)
+        - Applies sanitizer and compiler-wide options
+        - Forbid callers from passing in `"include"` in `includes`.
+    """
 
     # Remove `includes` from any `cc_library` definition.
-    # buildifier: disable=unused-variable
-    _ = kwargs.pop("includes", [])
+    if "include" in includes:
+        fail("do not append `include` in `\"includes\"`, it adds it automatically")
 
-    return cc_library_(
+    return cc_library(
         name = name,
         copts = copts + SANITIZER_OPTS + COMPILER_COPTS,
         linkopts = linkopts + SANITIZER_OPTS,
-        includes = ["include"],
-        defines = ["BAZEL"] + [
+        includes = ["include"] + includes,
+        local_defines = local_defines + ["LOGRIN_BUILDING"],
+        defines = [
+            "BAZEL",
             "LOGRIN_VERSION=%d" % encode_as_int(),
             "LOGRIN_DEVBUILD=%d" % (1 if DEVBUILD else 0),
-        ],
-        deps = deps,
+        ] + select({
+            "//bazel/flags:static_enabled": ["LOGRIN_STATIC"],
+            "//conditions:default": [],
+        }) + defines,
+        deps = ["//:include_hack", "//:config"] + deps,
         **kwargs
     )
 
-def cc_test(name, with_gtest_main = True, **kwargs):
-    deps = kwargs.pop("deps", [])
-    deps.append("@googletest//:gtest")
-
+def logrin_cc_test(
+        name,
+        deps = [],
+        size = "small",
+        copts = [],
+        linkopts = [],
+        env = {},
+        with_gtest_main = True,
+        **kwargs):
+    # buildifier: disable=list-append
+    deps += ["@googletest//:gtest"]
     if with_gtest_main:
-        deps.append("@googletest//:gtest_main")
+        # buildifier: disable=list-append
+        deps += ["@googletest//:gtest_main"]
 
-    # remove `visibility` in `cc_test` and make them private
-    kwargs.pop("visibility", [])
+    if "visibility" in kwargs:
+        fail("remove `visibility` as all tests will be marked private")
 
-    # set `size` if it is not defined
-    size = kwargs.pop("size", "small")
-
-    copts = kwargs.pop("copts", [])
-    linkopts = kwargs.pop("linkopts", [])
-    env = kwargs.pop("env", {})
-
-    return cc_test_(
+    return cc_test(
         name = name,
         deps = deps,
         copts = copts + SANITIZER_OPTS,

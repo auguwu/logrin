@@ -19,15 +19,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("//bazel:cc.bzl", "cc_test")
+load("//bazel:cc.bzl", "logrin_cc_test")
 
-cc_test(
+logrin_cc_test(
     name = "logger",
     srcs = ["Logger.test.cc"],
     deps = ["//src:logger"],
 )
 
-cc_test(
+logrin_cc_test(
     name = "log_factory",
     srcs = ["LogFactory.test.cc"],
     deps = ["//src:log_factory"],

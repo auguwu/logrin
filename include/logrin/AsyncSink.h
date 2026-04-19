@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "detail/config.h"
+
 #include <logrin/LogRecord.h>
 
 namespace logrin {
@@ -40,7 +42,7 @@ namespace logrin {
 ///
 /// Destructors must not return until all owned resources (threads, file handles, etc) have
 /// been released.
-struct VIOLET_API AsyncSink {
+struct LOGRIN_API AsyncSink {
     /// Destroys the sink and releases all owned resources.
     ///
     /// Implementations must ensure that all background workers have terminated
@@ -59,7 +61,7 @@ struct VIOLET_API AsyncSink {
     ///
     /// Implementations should block until all previously enqueued records
     /// have been fully processed and any buffered output has been written.
-    virtual void Flush() noexcept {}
+    virtual void Flush() noexcept { }
 };
 
 } // namespace logrin

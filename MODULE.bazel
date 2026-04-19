@@ -21,7 +21,6 @@
 
 module(
     name = "logrin",
-    compatibility_level = 0,
     repo_name = "dev_floofy_logrin",
 )
 

@@ -21,13 +21,14 @@
 
 #pragma once
 
+#include "detail/config.h"
+
 #include <nlohmann/json.hpp>
 #include <violet/Experimental/OneOf.h>
 #include <violet/SourceLocation.h>
 #include <violet/Violet.h>
 
 #include <chrono>
-#include <variant>
 
 namespace logrin {
 
@@ -50,14 +51,11 @@ enum struct LogLevel : violet::UInt8 {
 /// AttributeValue represents a small, closed set of value types that can be attached
 /// to log records as structured metadata. It is designed to be type-safe, allocation-aware,
 /// and RTTI-free.
-struct VIOLET_API AttributeValue final {
+struct LOGRIN_API AttributeValue final {
     /// Constructs an empty attribute value.
     ///
-    /// The resulting value holds no data (`std::monostate`).
-    constexpr VIOLET_IMPLICIT AttributeValue() noexcept
-        : n_data(std::monostate{})
-    {
-    }
+    /// The resulting value holds no data (`violet::experimental::Mono`).
+    constexpr VIOLET_IMPLICIT AttributeValue() noexcept = default;
 
     /// Constructs a boolean attribute value.
     constexpr VIOLET_IMPLICIT AttributeValue(bool value) noexcept
@@ -94,6 +92,14 @@ struct VIOLET_API AttributeValue final {
     {
     }
 
+    /// Constructs an string attribute value from the stringified representation of `T`
+    /// if it implements [`violet::Stringify`].
+    template<violet::Stringify T>
+    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
+        : n_data(violet::ToString(value))
+    {
+    }
+
     /// Returns **true** if this attribute value holds type `T`.
     template<typename T>
     [[nodiscard]] constexpr auto Is() const noexcept -> bool
@@ -103,7 +109,7 @@ struct VIOLET_API AttributeValue final {
 
     /// Returns a pointer to the attribute's value if it is represented by type `T`
     template<typename T>
-    constexpr auto As() const noexcept -> violet::Optional<const T&>
+    constexpr auto As() const noexcept VIOLET_LIFETIMEBOUND -> violet::Optional<std::reference_wrapper<const T>>
     {
         return this->n_data.Get<T>();
     }
@@ -111,8 +117,8 @@ struct VIOLET_API AttributeValue final {
 private:
     friend struct LogRecord;
 
-    using value_t
-        = violet::experimental::OneOf<std::monostate, bool, violet::Int64, violet::UInt64, double, violet::String>;
+    using value_t = violet::experimental::OneOf<violet::experimental::Mono, bool, violet::Int64, violet::UInt64, double,
+        violet::String>;
 
     value_t n_data;
 };
@@ -122,7 +128,7 @@ private:
 /// This struct represents a single logging event produced by a `Logger` and
 /// delivered to one or more sinks. It contains both unstructured text and
 /// structured key-value fields for rich diagnostics.
-struct VIOLET_API LogRecord final {
+struct LOGRIN_API LogRecord final {
     TimePoint Timestamp; ///< time point at which this log record was created
     LogLevel Level; ///< severity of the log event.
     violet::Str Message; ///< primary log message
@@ -131,7 +137,8 @@ struct VIOLET_API LogRecord final {
     violet::SourceLocation Location; ///< source location where this log was emitted
 
     /// Constructs a [`LogRecord`] that sets the timestamp
-    static auto Now(LogLevel level, violet::Str message, violet::SourceLocation loc = {}) noexcept -> LogRecord;
+    static auto Now(LogLevel level, violet::Str message,
+        violet::SourceLocation loc = std::source_location::current()) noexcept -> LogRecord;
 
     /// Sets the `logger` field.
     /// @param name the logger's name

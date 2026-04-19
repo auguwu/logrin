@@ -19,9 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("//bazel:cc.bzl", "cc_library")
+load("//bazel:cc.bzl", "logrin_cc_library")
 
-cc_library(
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+logrin_cc_library(
     name = "formatter",
     hdrs = ["//include/logrin/Sinks/Console:Formatter.h"],
     visibility = ["//visibility:public"],
@@ -31,7 +35,7 @@ cc_library(
     ],
 )
 
-cc_library(
+logrin_cc_library(
     name = "azalia",
     srcs = ["Azalia.cc"],
     hdrs = ["//include/logrin/Sinks/Console/Formatter:Azalia.h"],
@@ -44,7 +48,7 @@ cc_library(
     ],
 )
 
-cc_library(
+logrin_cc_library(
     name = "json",
     srcs = ["Json.cc"],
     hdrs = ["//include/logrin/Sinks/Console/Formatter:Json.h"],

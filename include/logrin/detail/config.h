@@ -21,29 +21,40 @@
 
 #pragma once
 
-#include "logrin/detail/config.h"
+#include <violet/Language/Macros.h>
+#include <violet/Language/Policy.h>
 
-#include <logrin/Sinks/Console/Formatter.h>
-#include <nlohmann/json.hpp>
-#include <violet/Violet.h>
+#ifndef LOGRIN_API
+#ifdef LOGRIN_STATIC
+#define LOGRIN_API
+#define LOGRIN_LOCAL
+#elif defined(VIOLET_WINDOWS) || defined(__CYGWIN__)
+#ifdef LOGRIN_BUILDING
+#define LOGRIN_API __declspec(dllexport)
+#else
+#define LOGRIN_API __declspec(dllimport)
+#endif // !defined(LOGRIN_BUILDING)
 
-namespace logrin {
-struct LogRecord;
-}
+#define VIOLET_LOCAL
+#elif VIOLET_HAS_ATTRIBUTE(visibility)
+#define LOGRIN_API __attribute__((visibility("default")))
+#define LOGRIN_LOCAL __attribute__((visibility("hidden")))
+#else
+#define LOGRIN_API
+#define LOGRIN_LOCAL
+#endif // !defined(LOGRIN_STATIC)
+#endif // !defined(LOGRIN_API)
 
-namespace logrin::sinks::console::formatters {
-
-struct LOGRIN_API Json final: public Formatter {
-    VIOLET_IMPLICIT Json() noexcept = default;
-
-    auto WithPretty(bool yes = true) noexcept -> Json&;
-    auto WithIndentation(violet::Int32 indent) noexcept -> Json&;
-
-    [[nodiscard]] auto Format(const LogRecord& record) const noexcept -> violet::String override;
-
-private:
-    bool n_pretty = false;
-    violet::Int32 n_indent = 4;
-};
-
-} // namespace logrin::sinks::console::formatters
+#ifdef LOGRIN_STATIC
+#define LOGRIN_EXTERN_TEMPLATE_DECL
+#define LOGRIN_EXTERN_TEMPLATE_DEF
+#elif defined(VIOLET_WINDOWS) || defined(__CYGWIN__)
+#define VIOLET_EXTERN_TEMPLATE_DECL __declspec(dllimport)
+#define VIOLET_EXTERN_TEMPLATE_DEF __declspec(dllexport)
+#elif VIOLET_HAS_ATTRIBUTE(visibility)
+#define VIOLET_EXTERN_TEMPLATE_DECL __attribute__((visibility("default")))
+#define VIOLET_EXTERN_TEMPLATE_DEF __attribute__((visibility("default")))
+#else
+#define LOGRIN_EXTERN_TEMPLATE_DECL
+#define LOGRIN_EXTERN_TEMPLATE_DEF
+#endif // defined(LOGRIN_STATIC)

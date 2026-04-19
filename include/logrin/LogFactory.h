@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "detail/config.h"
+
 #include <logrin/Logger.h>
 #include <violet/Violet.h>
 
@@ -56,7 +58,7 @@ struct AsyncSink;
 /// auto log = LogFactory::Get("my::logger");
 /// log.Info("Hello, world!");
 /// ```
-struct VIOLET_API LogFactory final {
+struct LOGRIN_API LogFactory final {
     /// Retrieves a logger with the specified name.
     ///
     /// If the logger doesn't exist already, it'll be created and stored internally.
@@ -73,15 +75,15 @@ struct VIOLET_API LogFactory final {
     /// @param level global log level.
     /// @param sinks list of synchronous sinks for log output.
     /// @param asyncSinks list of asynchronous sinks for log output.
-    static void Init(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks = {},
-        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = {}) noexcept;
+    static void Init(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks = { },
+        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = { }) noexcept;
 
     /// Shuts down the logging system, flushing any pending asynchronous logs.
     static void Shutdown() noexcept;
 
 private:
     VIOLET_EXPLICIT LogFactory(LogLevel level, std::initializer_list<violet::SharedPtr<Sink>> sinks,
-        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = {}) noexcept;
+        std::initializer_list<violet::SharedPtr<AsyncSink>> asyncSinks = { }) noexcept;
 
     LogLevel n_level;
     violet::Vec<violet::SharedPtr<Sink>> n_sinks;

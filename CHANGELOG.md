@@ -6,7 +6,14 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/Noelware/violet/compare/26.03...master>
+**Git History**: <https://github.com/Noelware/violet/compare/26.04...master>
+
+### 26.04
+- (breaking) Logrin will now compile with `-fvisibility=hidden` by default
+- Bump **Noelware.Violet** frameworks to 26.05.03
+- Add constructor for `AttributeValue` to take any type that implements [`violet::Stringify`](#)
+
+**Git History**: <https://github.com/Noelware/violet/compare/26.03...26.04>
 
 ### 26.03
 - Bump **Noelware.Violet** frameworks to 26.04.06

@@ -60,31 +60,58 @@ concurrency:
     group: ${{github.workflow}}-${{github.ref}}
     cancel-in-progress: true
 jobs:
-    bazel:
-        name: "Bazel ${{matrix.bazel}} / C++${{matrix.cxx-standard}} [compiler=${{matrix.compiler}} exceptions=${{matrix.exceptions}} rtti=${{matrix.rtti}}]"
-        runs-on: ubuntu-latest
+    # This will exhaustively test Logrin with Exceptions (-fno-exceptions/-fexceptions) and RTTI (-fno-rtti/-frtti) so that
+    # if anything breaks, we know where and why.
+    bazel-configuration:
+        name: "Bazel / Feature Configuration [exceptions=${{matrix.exceptions}} rtti=${{matrix.rtti}}]"
+        runs-on: ubuntu-24.04
+        container:
+            image: ghcr.io/noelware/violet/ci:clang-22
+        strategy:
+            fail-fast: false
+            matrix:
+                exceptions: ["yes", "no"]
+                rtti: ["yes", "no"]
+        env:
+            USE_BAZEL_VERSION: "8.6.0"
+            BAZELFLAGS: "--config=ci --config=cxx26 --action_env=CC --action_env=CXX --cxxopt=${{matrix.exceptions == 'yes' && '-fexceptions' || '-fno-exceptions'}} --host_cxxopt=${{matrix.exceptions == 'yes' && '-fexceptions' || '-fno-exceptions'}} --cxxopt=${{matrix.rtti == 'yes' && '-frtti' || '-fno-rtti'}} --host_cxxopt=${{matrix.rtti == 'yes' && '-frtti' || '-fno-rtti'}}"
+            CXX: "clang++-22"
+            CC: "clang-22"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: bazel-contrib/setup-bazel@0.19.0
+              with:
+                bazelisk-cache: true # avoid installing Bazel each time
+                repository-cache: true # cache repositories in `MODULE.bazel`
+                disk-cache: ${{github.workflow}}
+
+            - run: bazel build //... ${{env.BAZELFLAGS}}
+            - run: bazel test //... ${{env.BAZELFLAGS}}
+
+    # This will test compatibility between different compilers.
+    bazel-compiler-support:
+        name: "Bazel / Compiler Compatibility [compiler=${{matrix.compiler}}]"
+        runs-on: ubuntu-24.04
         container:
             image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
         strategy:
             fail-fast: false
             matrix:
-                exceptions: ["true", "false"]
-                rtti: ["true", "false"]
                 compiler:
                     - gcc-15
                     - gcc-14
                     - clang-22
                     - clang-21
                     - clang-20
-                bazel:
-                    - "7.7.1"
-                    - "8.6.0"
-                    # - "9.0.1"
-                cxx-standard:
-                    - "20"
-                    - "23"
-                    - "26"
                 include:
+                    - compiler: gcc-15
+                      flags: ""
+                      cxx: g++
+                      cc: gcc
+                    - compiler: gcc-14
+                      flags: ""
+                      cxx: g++
+                      cc: gcc
                     - compiler: clang-22
                       flags: ""
                       cxx: clang++-22
@@ -97,19 +124,67 @@ jobs:
                       flags: ""
                       cxx: clang++-20
                       cc: clang-20
+        env:
+            USE_BAZEL_VERSION: "8.6.0"
+            BAZELFLAGS: "--config=ci --config=cxx26 --action_env=CC --action_env=CXX ${{matrix.flags}}"
+            CXX: ${{matrix.cxx}}
+            CC: ${{matrix.cc}}
+        steps:
+            - uses: actions/checkout@v6
+            - uses: bazel-contrib/setup-bazel@0.19.0
+              with:
+                bazelisk-cache: true # avoid installing Bazel each time
+                repository-cache: true # cache repositories in `MODULE.bazel`
+                disk-cache: ${{github.workflow}}
+
+            - run: bazel build //... ${{env.BAZELFLAGS}}
+            - run: bazel test //... ${{env.BAZELFLAGS}}
+
+    # Test C++20 and C++23 with builds as well. We exclude C++26 as that is the default
+    # for most jobs that don't test this.
+    bazel-cxx-standard:
+        name: "Bazel / C++ Standard [compiler=${{matrix.compiler}} standard=${{matrix.cxx-standard}}]"
+        runs-on: ubuntu-24.04
+        container:
+            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+        strategy:
+            fail-fast: false
+            matrix:
+                cxx-standard: [20, 23]
+                compiler:
+                    - gcc-15
+                    - gcc-14
+                    - clang-22
+                    - clang-21
+                    - clang-20
+                include:
                     - compiler: gcc-15
                       flags: ""
                       cxx: g++
                       cc: gcc
-                    - compiler: clang-14
+                    - compiler: gcc-14
                       flags: ""
                       cxx: g++
                       cc: gcc
+                    - compiler: clang-22
+                      flags: ""
+                      cxx: clang++-22
+                      cc: clang-22
+                    - compiler: clang-21
+                      flags: ""
+                      cxx: clang++-21
+                      cc: clang-21
+                    - compiler: clang-20
+                      flags: ""
+                      cxx: clang++-20
+                      cc: clang-20
         env:
-            BAZELFLAGS: "--config=ci --config=cxx${{matrix.cxx-standard}} --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+            USE_BAZEL_VERSION: "8.6.0"
+            BAZELFLAGS: "--config=ci --config=cxx${{matrix.cxx-standard}} --action_env=CC --action_env=CXX ${{matrix.flags}}"
+            CXX: ${{matrix.cxx}}
+            CC: ${{matrix.cc}}
         steps:
             - uses: actions/checkout@v6
-            - run: echo "USE_BAZEL_VERSION=${{matrix.bazel}}" >> .bazelversion
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
@@ -121,5 +196,5 @@ jobs:
 
     # cmake:
     # meson:
-    # asan:
-    # ubsan:
+    # gn:
+    # asan-ubsan:

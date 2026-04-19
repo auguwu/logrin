@@ -24,12 +24,18 @@ load(":version.bzl", "DEVBUILD", "encode_as_int")
 
 SANITIZER_OPTS = select({
     "//bazel/flags:asan_enabled": ["-fsanitize=address"],
+    "//conditions:default": [],
+}) + select({
     "//bazel/flags:msan_enabled": [
         "-fsanitize=memory",
         "-fsanitize-memory-track-origins",
         "-fsanitize-memory-use-after-dtor",
     ],
+    "//conditions:default": [],
+}) + select({
     "//bazel/flags:tsan_enabled": ["-fsanitize=thread"],
+    "//conditions:default": [],
+}) + select({
     "//bazel/flags:ubsan_enabled": ["-fsanitize=undefined"],
     "//conditions:default": [],
 })

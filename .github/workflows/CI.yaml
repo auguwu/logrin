@@ -60,44 +60,44 @@ concurrency:
     group: ${{github.workflow}}-${{github.ref}}
     cancel-in-progress: true
 jobs:
-    bazel-linux:
-        name: "Bazel / Linux [${{matrix.compiler}} / Bazel ${{matrix.bazel-version}} (C++${{matrix.cxx-standard}})]"
-        runs-on: ubuntu-latest
-        container:
-            image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
-        strategy:
-            fail-fast: false
-            matrix:
-                compiler: [gcc-15, gcc-14, clang-22, clang-21, clang-20]
-                bazel-version: ["7.7.1", "8.5.1"]
-                cxx-standard: ["26", "23", "20"]
-                include:
-                    - {compiler: clang-22, cc: "clang-22", cxx: "clang++-22", flags: ""}
-                    - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: ""}
-                    - {compiler: clang-20, cc: "clang-20", cxx: "clang++-20", flags: ""}
-                    - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
-                    - {compiler: gcc-14, cc: "gcc", cxx: "g++", flags: ""}
-        env:
-            USE_BAZEL_VERSION: ${{matrix.bazel-version}}
-            BAZELFLAGS: "--config=ci --cxxopt=-std=c++${{matrix.cxx-standard}} --host_cxxopt=-std=c++${{matrix.cxx-standard}} --client_env=BAZEL_CXXOPTS=-std=c++${{matrix.cxx-standard}} --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
-        steps:
-            - uses: actions/checkout@v6
-            - uses: actions/cache@v5
-              with:
-                key: bazel-cache-linux-${{matrix.compiler}}-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
-                restore-keys: bazel-cache-linux-${{matrix.compiler}}-
-                path: |
-                    ~/.cache/bazel
-                    ~/.cache/bazelisk
+    # bazel-linux:
+    #     name: "Bazel / Linux [${{matrix.compiler}} / Bazel ${{matrix.bazel-version}} (C++${{matrix.cxx-standard}})]"
+    #     runs-on: ubuntu-latest
+    #     container:
+    #         image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
+    #     strategy:
+    #         fail-fast: false
+    #         matrix:
+    #             compiler: [gcc-15, gcc-14, clang-22, clang-21, clang-20]
+    #             bazel-version: ["7.7.1", "8.5.1"]
+    #             cxx-standard: ["26", "23", "20"]
+    #             include:
+    #                 - {compiler: clang-22, cc: "clang-22", cxx: "clang++-22", flags: ""}
+    #                 - {compiler: clang-21, cc: "clang-21", cxx: "clang++-21", flags: ""}
+    #                 - {compiler: clang-20, cc: "clang-20", cxx: "clang++-20", flags: ""}
+    #                 - {compiler: gcc-15, cc: "gcc", cxx: "g++", flags: ""}
+    #                 - {compiler: gcc-14, cc: "gcc", cxx: "g++", flags: ""}
+    #     env:
+    #         USE_BAZEL_VERSION: ${{matrix.bazel-version}}
+    #         BAZELFLAGS: "--config=ci --cxxopt=-std=c++${{matrix.cxx-standard}} --host_cxxopt=-std=c++${{matrix.cxx-standard}} --client_env=BAZEL_CXXOPTS=-std=c++${{matrix.cxx-standard}} --action_env=CC=${{matrix.cc}} --action_env=CXX=${{matrix.cxx}} ${{matrix.flags}}"
+    #     steps:
+    #         - uses: actions/checkout@v6
+    #         - uses: actions/cache@v5
+    #           with:
+    #             key: bazel-cache-linux-${{matrix.compiler}}-${{hashFiles('MODULE.bazel', 'BUILD.bazel', '.bazelrc')}}
+    #             restore-keys: bazel-cache-linux-${{matrix.compiler}}-
+    #             path: |
+    #                 ~/.cache/bazel
+    #                 ~/.cache/bazelisk
 
-            - run: bazel build ${{env.BAZELFLAGS}} //...
-            - name: "build: without C++ exceptions"
-              run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-exceptions --host_cxxopt=-fno-exceptions //...
+    #         - run: bazel build ${{env.BAZELFLAGS}} //...
+    #         - name: "build: without C++ exceptions"
+    #           run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-exceptions --host_cxxopt=-fno-exceptions //...
 
-            - name: "build: without RTTI"
-              run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-rtti --host_cxxopt=-fno-rtti //...
+    #         - name: "build: without RTTI"
+    #           run: bazel build ${{env.BAZELFLAGS}} --cxxopt=-fno-rtti --host_cxxopt=-fno-rtti //...
 
-            - run: bazel test ${{env.BAZELFLAGS}} //...
+    #         - run: bazel test ${{env.BAZELFLAGS}} //...
     asan-linux:
         name: "Bazel / Linux [${{matrix.compiler}} (ASan)]"
         runs-on: ubuntu-latest

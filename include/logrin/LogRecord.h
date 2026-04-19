@@ -55,30 +55,30 @@ struct LOGRIN_API AttributeValue final {
     /// Constructs an empty attribute value.
     ///
     /// The resulting value holds no data (`violet::experimental::Mono`).
-    constexpr VIOLET_IMPLICIT AttributeValue() noexcept = default;
+    VIOLET_IMPLICIT AttributeValue() noexcept = default;
 
     /// Constructs a boolean attribute value.
-    constexpr VIOLET_IMPLICIT AttributeValue(bool value) noexcept
+    VIOLET_IMPLICIT AttributeValue(bool value) noexcept
         : n_data(value)
     {
     }
 
     /// Constructs a signed 64-bit integer attribute value.
     template<std::convertible_to<violet::Int64> T>
-    constexpr VIOLET_IMPLICIT AttributeValue(violet::Int64 value) noexcept
+    VIOLET_IMPLICIT AttributeValue(violet::Int64 value) noexcept
         : n_data(violet::Int64(value)) // NOLINT(google-readability-casting,readability-redundant-casting)
     {
     }
 
     /// Constructs an unsigned 64-bit integer attribute value.
     template<std::convertible_to<violet::UInt64> T>
-    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
+    VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(violet::UInt64(value))
     {
     }
 
     /// Constructs a floating-point attribute value.
-    constexpr VIOLET_IMPLICIT AttributeValue(double value) noexcept
+    VIOLET_IMPLICIT AttributeValue(double value) noexcept
         : n_data(value)
     {
     }
@@ -87,7 +87,7 @@ struct LOGRIN_API AttributeValue final {
     ///
     /// Ownership of the string is taken by value.
     template<std::convertible_to<violet::String> T>
-    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
+    VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(violet::String(value))
     {
     }
@@ -95,21 +95,21 @@ struct LOGRIN_API AttributeValue final {
     /// Constructs an string attribute value from the stringified representation of `T`
     /// if it implements [`violet::Stringify`].
     template<violet::Stringify T>
-    constexpr VIOLET_IMPLICIT AttributeValue(T value) noexcept
+    VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(violet::ToString(value))
     {
     }
 
     /// Returns **true** if this attribute value holds type `T`.
     template<typename T>
-    [[nodiscard]] constexpr auto Is() const noexcept -> bool
+    [[nodiscard]] auto Is() const noexcept -> bool
     {
         return this->n_data.Holds<T>();
     }
 
     /// Returns a pointer to the attribute's value if it is represented by type `T`
     template<typename T>
-    constexpr auto As() const noexcept VIOLET_LIFETIMEBOUND -> violet::Optional<std::reference_wrapper<const T>>
+    auto As() const noexcept VIOLET_LIFETIMEBOUND -> violet::Optional<std::reference_wrapper<const T>>
     {
         return this->n_data.Get<T>();
     }

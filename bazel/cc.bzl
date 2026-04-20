@@ -137,7 +137,10 @@ def logrin_cc_library(
     return cc_library(
         name = name,
         copts = copts + SANITIZER_OPTS + COMPILER_COPTS,
-        linkopts = linkopts + SANITIZER_OPTS,
+        linkopts = linkopts + SANITIZER_OPTS + select({
+            "//bazel/flags:ubsan_enabled": ["-lubsan"],
+            "//conditions:default": [],
+        }),
         includes = ["include"] + includes,
         local_defines = local_defines + ["LOGRIN_BUILDING"],
         defines = [

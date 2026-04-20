@@ -83,7 +83,7 @@ jobs:
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
-                disk-cache: ${{github.workflow}}
+                disk-cache: linux-${{matrix.exceptions == 'yes' && 'exceptions' || 'no-exceptions'}}-${{matrix.rtti == 'yes' && 'rtti' || 'nortti'}}
 
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
@@ -134,7 +134,7 @@ jobs:
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
-                disk-cache: ${{github.workflow}}
+                disk-cache: linux-cxx-compiler-support-${{matrix.compiler}}
 
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
@@ -187,7 +187,7 @@ jobs:
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
-                disk-cache: ${{github.workflow}}
+                disk-cache: linux-cxx-standard-${{matrix.compiler}}-cxx${{matrix.cxx-standard}}
 
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
@@ -208,7 +208,7 @@ jobs:
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
-                disk-cache: ${{github.workflow}}
+                disk-cache: linux-asan-ubsan
 
             - run: bazel test //... ${{env.BAZELFLAGS}}
 

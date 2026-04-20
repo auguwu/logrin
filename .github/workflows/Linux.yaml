@@ -85,7 +85,6 @@ jobs:
                 repository-cache: true # cache repositories in `MODULE.bazel`
                 disk-cache: ${{github.workflow}}
 
-            - run: bazel build //... ${{env.BAZELFLAGS}}
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
     # This will test compatibility between different compilers.
@@ -137,7 +136,6 @@ jobs:
                 repository-cache: true # cache repositories in `MODULE.bazel`
                 disk-cache: ${{github.workflow}}
 
-            - run: bazel build //... ${{env.BAZELFLAGS}}
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
     # Test C++20 and C++23 with builds as well. We exclude C++26 as that is the default
@@ -191,10 +189,29 @@ jobs:
                 repository-cache: true # cache repositories in `MODULE.bazel`
                 disk-cache: ${{github.workflow}}
 
-            - run: bazel build //... ${{env.BAZELFLAGS}}
+            - run: bazel test //... ${{env.BAZELFLAGS}}
+
+    # Run both ASan and UBSan to detect common errors that could've occurred
+    asan-ubsan:
+        name: "AddressSanitizer / UndefinedBehaviourSanitizer"
+        runs-on: ubuntu-24.04
+        container:
+            image: ghcr.io/noelware/violet/ci:clang-22
+        env:
+            USE_BAZEL_VERSION: "8.6.0"
+            BAZELFLAGS: "--config=ci --config=cxx26 --config=asan --config=ubsan --action_env=CC --action_env=CXX --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-22 --test_env=UBSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-22"
+            CXX: "clang++-22"
+            CC: "clang-22"
+        steps:
+            - uses: actions/checkout@v6
+            - uses: bazel-contrib/setup-bazel@0.19.0
+              with:
+                bazelisk-cache: true # avoid installing Bazel each time
+                repository-cache: true # cache repositories in `MODULE.bazel`
+                disk-cache: ${{github.workflow}}
+
             - run: bazel test //... ${{env.BAZELFLAGS}}
 
     # cmake:
     # meson:
     # gn:
-    # asan-ubsan:

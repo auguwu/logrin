@@ -6,31 +6,34 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/Noelware/violet/compare/26.04...master>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.04...master>
 
 ### 26.05
-- Bump **Noelware.Violet** frameworks to 26.06
+- Bump **Noelware.Violet** frameworks to 26.06.04
+- Deprecate `//src/...` Bazel targets to `//logrin/...`
+- Remove console formatters for first-class formatters
+- Remove `Azalia` formatter for `Pattern::Azalia()`
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.04...26.05>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.04...26.05>
 
 ### 26.04
 - (breaking) Logrin will now compile with `-fvisibility=hidden` by default
 - Bump **Noelware.Violet** frameworks to 26.05.03
 - Add constructor for `AttributeValue` to take any type that implements [`violet::Stringify`](#)
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.03...26.04>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.03...26.04>
 
 ### 26.03
 - Bump **Noelware.Violet** frameworks to 26.04.06
 - Use **violet::SourceLocation** over **std::source_location** for finer grain locations (i.e, for bridging other logging frameworks that also have source locations)
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.02.05...26.03>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02.05...26.03>
 
 ### 26.02.05
 - Bump **Noelware.Violet** frameworks to 26.03.09
 - Allow log method (i.e, `Logger::Log`, `Logger::Warn`) be used in `const` contexts
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.02.04...26.02.05>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02.04...26.02.05>
 
 ### 26.02.04
 - Bump **Noelware.Violet** frameworks to 26.03.04
@@ -38,7 +41,7 @@ availableAt:
 - Remove `otel_sink` and `http_sink` flags
 - Removed the "uber" library
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.02.03...26.02.04>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.02.03...26.02.04>
 
 ### 26.02.03
 - Fix errors when using references in **Console::WithFormatter** (@auguwu)
@@ -63,12 +66,12 @@ availableAt:
 - Bump **Noelware.Violet** frameworks to 26.02.03
 - Include missing header files
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.01.02...26.02>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.01.02...26.02>
 
 ### 26.01.02
 - Remove `LOGRIN_VERSION_STR` and add `LOGRIN_VERSION` to list of `define`s instead of `copt`s
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.01.01...26.01.02>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.01.01...26.01.02>
 
 ### 26.01.01
 - Add **LOGRIN_VERSION** and **LOGRIN_VERSION_STR** definitions
@@ -77,7 +80,7 @@ availableAt:
 #### Breaking Changes
 - `LogFactory::Init` uses shared pointers instead of raw pointers when initializing
 
-**Git History**: <https://github.com/Noelware/violet/compare/26.01...26.01.01>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.01...26.01.01>
 
 ### 26.01
 🦊💖🐻‍❄️

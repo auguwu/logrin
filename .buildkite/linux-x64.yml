@@ -162,6 +162,14 @@ steps:
       esac
 
       bazel test --config=ci --config=cxx{{matrix.standard}} --action_env=CC --action_env=CXX //...
+  - label: ":bazel::opentelemetry: OpenTelemetry Sink"
+    key: "opentelemetry-sink"
+    <<: *if_changed
+    plugins: *plugins
+    env:
+      CXX: "clang++-22"
+      CC: "clang-22"
+    command: bazel build //src/sinks:opentelemetry --config=ci --//:opentelemetry=True --config=cxx26
   - label: ":microscope: AddressSanitizer / UndefinedBehaviourSanitizer"
     key: "asan-ubsan"
     <<: *if_changed
@@ -171,4 +179,4 @@ steps:
       ASAN_SYMBOLIZER_PATH: "/usr/bin/llvm-symbolizer-22"
       CXX: "clang++-22"
       CC: "clang-22"
-    command: bazel test --config=ci --config=cxx26 --config=asan --config=ubsan --action_env=CC --action_env=CXX --test_env=ASAN_SYMBOLIZER_PATH --test_env=UBSAN_SYMBOLIZER_PATH
+    command: bazel test --//:opentelemetry=True --config=ci --config=cxx26 --config=asan --config=ubsan --action_env=CC --action_env=CXX --test_env=ASAN_SYMBOLIZER_PATH --test_env=UBSAN_SYMBOLIZER_PATH

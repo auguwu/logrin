@@ -19,16 +19,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+[wrap-file]
+directory = violet-26.06.04
+source_url = https://github.com/Noelware/violet/releases/download/26.06.04/mesondist.tgz
+source_filename = mesondist.tgz
+source_hash = 86510d73496856a49f3cf453e5643acc0cec089039d80336b701477da91fa7b2
+lead_directory_missing = true
 
-cc_binary(
-    name = "console_sink",
-    srcs = ["main.cc"],
-    visibility = ["//visibility:private"],
-    deps = [
-        "//src:log_factory",
-        "//src/formatters:json",
-        "//src/formatters:pattern",
-        "//src/sinks:console",
-    ],
-)
+diff_files = violet/panic-fix.patch
+
+[provide]
+violet = violet_dep
+violet_experimental = violet_experimental_dep
+violet_io = violet_io_dep
+violet_filesystem = violet_filesystem_dep
+violet_experimental_threading = violet_experimental_threading_dep
+violet_io_experimental = violet_io_experimental_dep
+violet_terminal = violet_terminal_dep
+violet_anyhow = violet_anyhow_dep
+
+; [wrap-git]
+; url = https://github.com/Noelware/violet.git
+; revision = 26.06.03
+; depth = 1
+
+; [provide]
+; violet = violet_dep
+; violet_experimental = violet_experimental_dep
+; violet_io = violet_io_dep
+; violet_filesystem = violet_filesystem_dep
+; violet_experimental_threading = violet_experimental_threading_dep
+; violet_io_experimental = violet_io_experimental_dep
+; violet_terminal = violet_terminal_dep
+; violet_anyhow = violet_anyhow_dep

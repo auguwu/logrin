@@ -19,9 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "opentelemetry/logs/provider.h"
-
 #include <logrin/Sinks/OpenTelemetry.h>
+
+#if LOGRIN_FEATURE(OPENTELEMETRY)
+
+#include "opentelemetry/logs/provider.h"
 
 using logrin::sinks::OpenTelemetry;
 
@@ -95,12 +97,7 @@ auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
     -> violet::UniquePtr<opentelemetry::logs::LogRecord>
 {
     auto log = this->n_otel->CreateLogRecord();
-
     auto logRecordToSeverity = [&record]() -> Severity {
-        VIOLET_DIAGNOSTIC_PUSH
-#if defined(VIOLET_GCC) || defined(VIOLET_CLANG)
-        VIOLET_DIAGNOSTIC_IGNORE("-Wswitch")
-#endif
         switch (record.Level) {
         case LogLevel::Trace:
             return Severity::kTrace;
@@ -119,10 +116,10 @@ auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
 
         case LogLevel::Fatal:
             return Severity::kFatal;
-        }
 
-        VIOLET_UNREACHABLE();
-        VIOLET_DIAGNOSTIC_POP
+        default:
+            VIOLET_UNREACHABLE();
+        }
     };
 
     log->SetObservedTimestamp(SystemTimestamp(record.Timestamp));
@@ -168,3 +165,5 @@ auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
     // TODO(@auguwu/Noel): should we provide `source.location` and `log.name` in attributes?
     return log;
 }
+
+#endif

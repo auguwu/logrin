@@ -24,6 +24,10 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 cc_binary(
     name = "otel_sink",
     srcs = ["main.cc"],
+    target_compatible_with = select({
+        "//bazel/flags:opentelemetry_enabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
     visibility = ["//visibility:private"],
     deps = [
         "//src:log_factory",

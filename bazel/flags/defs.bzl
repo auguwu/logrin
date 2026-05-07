@@ -31,6 +31,10 @@ BOOL_FLAGS = {
         When invoked on C++ targets, the C++ standard library implementation will require to be compiled with MemorySanitizer. This will always fail in libstdc++, but libc++
         has MSan support, but you will need to compile it yourself; default toolchains of libc++ don't compile with MSan by default.""",
     },
+    "opentelemetry": {
+        "default": False,
+        "doc": "Enable the OpenTelemetry sink implementation",
+    },
     "static": {
         "default": False,
         "doc": "Only should be enabled on static builds.",

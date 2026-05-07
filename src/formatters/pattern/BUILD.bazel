@@ -19,5 +19,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-CompileFlags:
-    Add: [-std=c++26]
+load("//bazel:cc.bzl", "logrin_cc_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+exports_files(glob(["*.cc"]))
+
+logrin_cc_library(
+    name = "error",
+    hdrs = ["//include/logrin/Formatter/Pattern:Error.h"],
+    deps = ["@violet//violet/container"],
+)
+
+logrin_cc_library(
+    name = "parser",
+    srcs = ["Parser.cc"],
+    hdrs = ["//include/logrin/Formatter/Pattern:Parser.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter/pattern:parser`. It'll be removed in a 26.06 release.",
+    deps = [
+        ":error",
+        ":segment",
+        "//src:log_record",
+        "@violet//violet:strings",
+        "@violet//violet/support:terminal",
+    ],
+)
+
+logrin_cc_library(
+    name = "segment",
+    srcs = ["Segment.cc"],
+    hdrs = ["//include/logrin/Formatter/Pattern:Segment.h"],
+    deps = [
+        ":error",
+        "@violet//violet:strings",
+        "@violet//violet/container",
+    ],
+)

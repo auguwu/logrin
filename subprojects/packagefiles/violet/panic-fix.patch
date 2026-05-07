@@ -1,0 +1,24 @@
+From 3d992499c40f9268c2b4b62b131cfc7633499e62 Mon Sep 17 00:00:00 2001
+From: Noel Towa <cutie@floofy.dev>
+Date: Tue, 5 May 2026 19:35:01 -0700
+Subject: [PATCH] Fix C/C++ attribute mixup in `Panic.h`
+
+---
+ include/violet/Language/Panic.h |  2 +-
+ weow.patch                      | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+ create mode 100644 weow.patch
+
+diff --git a/include/violet/Language/Panic.h b/include/violet/Language/Panic.h
+index ff11696..96e6948 100644
+--- a/include/violet/Language/Panic.h
++++ b/include/violet/Language/Panic.h
+@@ -74,7 +74,7 @@ VIOLET_API void SetStrategy(Strategy strategy) noexcept;
+
+ namespace violet::detail {
+
+-VIOLET_API [[noreturn]] VIOLET_COLD void DoPanic(
++[[noreturn]] VIOLET_COLD VIOLET_API void DoPanic(
+     std::string_view message, SourceLocation* userland = nullptr, SourceLocation loc = std::source_location::current());
+
+ }

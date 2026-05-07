@@ -25,10 +25,13 @@ package(
     default_visibility = ["//visibility:public"],
 )
 
+exports_files(glob(["*.cc"]))
+
 logrin_cc_library(
     name = "log_record",
     srcs = ["LogRecord.cc"],
     hdrs = ["//include/logrin:LogRecord.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:log_record`. It'll be removed in a 26.06 release.",
     deps = [
         "@nlohmann_json//:json",
         "@violet//violet",
@@ -41,6 +44,7 @@ logrin_cc_library(
 logrin_cc_library(
     name = "async_sink",
     hdrs = ["//include/logrin:AsyncSink.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:async_sink`. It'll be removed in a 26.06 release.",
     deps = [
         ":log_record",
         "@violet//violet",
@@ -50,6 +54,7 @@ logrin_cc_library(
 logrin_cc_library(
     name = "sink",
     hdrs = ["//include/logrin:Sink.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:sink`. It'll be removed in a 26.06 release.",
     deps = [
         ":log_record",
         "@violet//violet",
@@ -60,6 +65,7 @@ logrin_cc_library(
     name = "log_factory",
     srcs = ["LogFactory.cc"],
     hdrs = ["//include/logrin:LogFactory.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:log_factory`. It'll be removed in a 26.06 release.",
     deps = [
         ":logger",
         "@violet//violet",
@@ -70,10 +76,18 @@ logrin_cc_library(
     name = "logger",
     srcs = ["Logger.cc"],
     hdrs = ["//include/logrin:Logger.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:logger`. It'll be removed in a 26.06 release.",
     deps = [
         ":async_sink",
         ":sink",
         "@violet//violet",
         "@violet//violet:source_location",
     ],
+)
+
+logrin_cc_library(
+    name = "formatter",
+    hdrs = ["//include/logrin:Formatter.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin:formatter`. It'll be removed in a 26.06 release.",
+    deps = ["@violet//violet"],
 )

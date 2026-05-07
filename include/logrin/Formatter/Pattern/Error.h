@@ -20,3 +20,33 @@
 // SOFTWARE.
 
 #pragma once
+
+#include "logrin/detail/config.h"
+
+#include <violet/Violet.h>
+
+namespace logrin::formatter::pattern {
+
+struct LOGRIN_API Error final {
+    VIOLET_EXPLICIT Error(violet::Str message)
+        : n_message(message)
+    {
+    }
+
+    [[nodiscard]] auto ToString() const noexcept -> violet::String
+    {
+        return this->n_message;
+    }
+
+    friend auto operator<<(std::ostream& os, const Error& self) -> std::ostream&
+    {
+        return os << self.ToString();
+    }
+
+private:
+    violet::String n_message;
+};
+
+} // namespace logrin::formatter::pattern
+
+VIOLET_FORMATTER(logrin::formatter::pattern::Error);

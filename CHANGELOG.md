@@ -8,6 +8,11 @@ availableAt:
 ### unreleased
 **Git History**: <https://github.com/Noelware/violet/compare/26.04...master>
 
+### 26.05
+- Bump **Noelware.Violet** frameworks to 26.06
+
+**Git History**: <https://github.com/Noelware/violet/compare/26.04...26.05>
+
 ### 26.04
 - (breaking) Logrin will now compile with `-fvisibility=hidden` by default
 - Bump **Noelware.Violet** frameworks to 26.05.03

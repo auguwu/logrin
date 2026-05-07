@@ -28,7 +28,7 @@
     "bazel.buildifierFixOnFormat": true,
     "bazel.buildifierConfigJsonPath": ".buildifier.json",
 
-    "cmake.configureArgs": ["-DVIOLET_ENABLE_TESTS:BOOL=ON", "-DVIOLET_ENABLE_ALL:BOOL=ON"],
+    "cmake.configureArgs": ["-DLOGRIN_ENABLE_TESTS:BOOL=ON", "-DLOGRIN_ENABLE_ALL:BOOL=ON"],
 
     // Nix-specific settings \\
     "nix.enableLanguageServer": true,
@@ -55,5 +55,9 @@
     },
     "[nix]": {
         "editor.defaultFormatter": "jnoortheen.nix-ide"
+    },
+
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json": ".buildkite/*.yml"
     }
 }

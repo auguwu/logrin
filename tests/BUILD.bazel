@@ -32,3 +32,13 @@ logrin_cc_test(
     srcs = ["LogFactory.test.cc"],
     deps = ["//src:log_factory"],
 )
+
+logrin_cc_test(
+    name = "pattern",
+    srcs = ["Pattern.test.cc"],
+    deps = [
+        "//src:log_record",
+        "//src/formatters:pattern",
+        "//src/formatters/pattern:parser",
+    ],
+)

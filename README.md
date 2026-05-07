@@ -1,4 +1,4 @@
-### 🐻‍❄️🏳️‍⚧️ Logrin · ![GitHub License](https://img.shields.io/github/license/auguwu/logrin?style=flat-square) ![Linux / CI](https://img.shields.io/github/actions/workflow/status/auguwu/logrin/Linux.yaml?branch=master&style=flat-square)
+### 🐻‍❄️🏳️‍⚧️ Logrin · ![GitHub License](https://img.shields.io/github/license/auguwu/logrin?style=flat-square) ![Linux / CI](https://img.shields.io/github/actions/workflow/status/auguwu/logrin/Linux.yaml?branch=master&style=flat-square) [![Build status](https://badge.buildkite.com/5b5ffceb30f26846ed7caab7106c9892196157dca466a3690b.svg)](https://buildkite.com/polarboi/logrin)
 
 #### *Modern, async-aware logging framework for C++20*
 **Logrin** is a newer, modern, async-aware logging framework for C++20. It was designed and built to provide rich, structured, contextual-aware diagnostics for C++ applications with feature parity of Go's [`logrus`] and Rust's [`tracing`] libraries.

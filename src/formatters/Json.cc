@@ -19,31 +19,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include <logrin/Formatter/Json.h>
+#include <logrin/LogRecord.h>
 
-#include "logrin/detail/config.h"
+using logrin::formatter::Json;
+using violet::Int32;
 
-#include <logrin/Sinks/Console/Formatter.h>
-#include <nlohmann/json.hpp>
-#include <violet/Violet.h>
-
-namespace logrin {
-struct LogRecord;
+auto Json::Pretty(bool yes) noexcept -> Json&
+{
+    this->n_config.Pretty = yes;
+    return *this;
 }
 
-namespace logrin::sinks::console::formatters {
+auto Json::WithPretty(bool yes) noexcept -> Json&
+{
+    this->n_config.Pretty = yes;
+    return *this;
+}
 
-struct LOGRIN_API Json final: public Formatter {
-    VIOLET_IMPLICIT Json() noexcept = default;
-
-    auto WithPretty(bool yes = true) noexcept -> Json&;
-    auto WithIndentation(violet::Int32 indent) noexcept -> Json&;
-
-    [[nodiscard]] auto Format(const LogRecord& record) const noexcept -> violet::String override;
-
-private:
-    bool n_pretty = false;
-    violet::Int32 n_indent = 4;
-};
-
-} // namespace logrin::sinks::console::formatters
+auto Json::Format(const LogRecord& record) const -> violet::String
+{
+    auto value = record.AsJson();
+    return value.dump(this->n_config.Pretty ? this->n_config.Indentation : -1, ' ', true);
+}

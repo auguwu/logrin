@@ -19,16 +19,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//bazel:cc.bzl", "logrin_cc_library")
 
-cc_binary(
-    name = "console_sink",
-    srcs = ["main.cc"],
-    visibility = ["//visibility:private"],
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+exports_files(glob(["*.cc"]))
+
+logrin_cc_library(
+    name = "json",
+    srcs = ["Json.cc"],
+    hdrs = ["//include/logrin/Formatter:Json.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter:json`. It'll be removed in a 26.06 release.",
     deps = [
-        "//src:log_factory",
-        "//src/formatters:json",
-        "//src/formatters:pattern",
-        "//src/sinks:console",
+        "//src:formatter",
+        "//src:log_record",
+        "@violet//violet",
+    ],
+)
+
+logrin_cc_library(
+    name = "pattern",
+    srcs = ["Pattern.cc"],
+    hdrs = ["//include/logrin/Formatter:Pattern.h"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter:pattern`. It'll be removed in a 26.06 release.",
+    deps = [
+        "//src:formatter",
+        "//src:log_record",
+        "//src/formatters/pattern:parser",
+        "//src/formatters/pattern:segment",
+        "@violet//violet",
     ],
 )

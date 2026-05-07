@@ -19,43 +19,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("//bazel:cc.bzl", "logrin_cc_library")
-
-package(
-    default_visibility = ["//visibility:public"],
-)
-
-logrin_cc_library(
-    name = "formatter",
-    hdrs = ["//include/logrin/Sinks/Console:Formatter.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src:log_record",
-        "@violet//violet",
-    ],
-)
-
-logrin_cc_library(
-    name = "azalia",
-    srcs = ["Azalia.cc"],
-    hdrs = ["//include/logrin/Sinks/Console/Formatter:Azalia.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":formatter",
-        "//src:log_record",
-        "@violet//violet",
-        "@violet//violet/support:terminal",
-    ],
-)
-
-logrin_cc_library(
-    name = "json",
-    srcs = ["Json.cc"],
-    hdrs = ["//include/logrin/Sinks/Console/Formatter:Json.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":formatter",
-        "//src:log_record",
-        "@violet//violet",
-    ],
+option(
+    'build_examples',
+    type: 'boolean',
+    value: false,
+    description: 'build examples',
 )

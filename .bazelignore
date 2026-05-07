@@ -5,6 +5,7 @@
 build/
 builddir/
 external/
-.bazeldist
+.bazeldist/
+subprojects/
 
 compile_commands.json

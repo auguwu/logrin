@@ -36,3 +36,11 @@ git_override(
     commit = "5dfa2d148d8ba0ff2d257588f8935f131576d385",
     remote = "https://github.com/auguwu/minato.git",
 )
+
+## This is only used in the `examples/otel_sink` example, Logrin itself doesn't need access
+## to Protobuf.
+bazel_dep(name = "protobuf", version = "33.4", dev_dependency = True)
+single_version_override(
+    module_name = "protobuf",
+    version = "33.4",
+)

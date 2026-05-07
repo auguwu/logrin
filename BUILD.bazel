@@ -21,7 +21,7 @@
 
 load("@minato//:rcc.bzl", "minato")
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//bazel/flags:defs.bzl", "FLAGS")
+load("//bazel/flags:defs.bzl", "BOOL_FLAGS")
 
 minato(
     name = "rcc",
@@ -52,4 +52,4 @@ cc_library(
     name = name,
     actual = "//bazel/flags:%s" % name,
     visibility = ["//visibility:public"],
-) for name in FLAGS]
+) for name in BOOL_FLAGS.keys()]

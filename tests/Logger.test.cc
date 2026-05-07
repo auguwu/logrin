@@ -27,6 +27,8 @@
 
 using namespace logrin; // NOLINT(google-build-using-namespace)
 
+namespace {
+
 struct MockSink final: public logrin::Sink {
     violet::UInt32 Emitted = 0;
 
@@ -44,6 +46,8 @@ struct AsyncMockSink final: public logrin::AsyncSink {
         this->Enqueued++;
     }
 };
+
+} // namespace
 
 TEST(Loggers, DefaultConstructor)
 {

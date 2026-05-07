@@ -19,16 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
-
-cc_binary(
-    name = "console_sink",
-    srcs = ["main.cc"],
-    visibility = ["//visibility:private"],
-    deps = [
-        "//src:log_factory",
-        "//src/formatters:json",
-        "//src/formatters:pattern",
-        "//src/sinks:console",
-    ],
+executable(
+    'console_sink',
+    'main.cc',
+    dependencies: [logrin_dep],
 )

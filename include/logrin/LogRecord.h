@@ -86,7 +86,7 @@ struct LOGRIN_API AttributeValue final {
     /// Constructs a string attribute value.
     ///
     /// Ownership of the string is taken by value.
-    template<std::convertible_to<violet::String> T>
+    template<std::convertible_to<violet::Str> T>
     VIOLET_IMPLICIT AttributeValue(T value) noexcept
         : n_data(violet::String(value))
     {
@@ -102,14 +102,14 @@ struct LOGRIN_API AttributeValue final {
 
     /// Returns **true** if this attribute value holds type `T`.
     template<typename T>
-    [[nodiscard]] auto Is() const noexcept -> bool
+    [[nodiscard]] constexpr auto Is() const noexcept -> bool
     {
         return this->n_data.Holds<T>();
     }
 
     /// Returns a pointer to the attribute's value if it is represented by type `T`
     template<typename T>
-    auto As() const noexcept VIOLET_LIFETIMEBOUND -> violet::Optional<std::reference_wrapper<const T>>
+    constexpr auto As() const noexcept VIOLET_LIFETIMEBOUND -> violet::Optional<std::reference_wrapper<const T>>
     {
         return this->n_data.Get<T>();
     }

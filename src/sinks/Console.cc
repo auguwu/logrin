@@ -21,18 +21,24 @@
 
 #include <logrin/Sinks/Console.h>
 
-#ifdef VIOLET_UNIX
+#if VIOLET_PLATFORM(UNIX)
+#include <unistd.h>
+
 #define STDOUT_HANDLE STDOUT_FILENO
 #define STDERR_HANDLE STDERR_FILENO
-#elif defined(VIOLET_WINDOWS)
+#elif VIOLET_PLATFORM(WINDOWS)
 #include <windows.h>
 
 #define STDOUT_HANDLE STD_OUTPUT_HANDLE
 #define STDERR_HANDLE STD_ERROR_HANDLE
+#else
+#error "add support for your platform for `{STDOUT|STDERR}_HANDLE`"
 #endif
 
 using logrin::sinks::Console;
+
 using violet::Int32;
+using violet::Span;
 using violet::UInt8;
 using violet::Vec;
 
@@ -50,7 +56,6 @@ auto Console::WithStream(Console::Stream stream) noexcept -> Console&
         }
 
         this->n_descriptor.Close();
-        this->n_descriptor = {};
     }
 
     this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_HANDLE : STDERR_HANDLE;
@@ -75,7 +80,7 @@ void Console::Emit(const LogRecord& record)
             if (res.Err()) {
                 std::cerr << "[logrin@fatal";
                 if (!record.Location.File.empty()) {
-                    std::cerr << ':' << record.Location.File;
+                    std::cerr << ' ' << record.Location.File;
                 }
 
                 if (record.Location.Line > 0) {
@@ -87,6 +92,9 @@ void Console::Emit(const LogRecord& record)
                 }
 
                 std::cerr << "]: received fatal error when writing to stream: " << res.Error() << '\n';
+            } else {
+                constexpr static UInt8 newline = '\n';
+                (void)this->n_descriptor.Write({ &newline, 1 });
             }
         }
     }

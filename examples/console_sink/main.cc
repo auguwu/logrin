@@ -19,25 +19,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <logrin/Formatter/Json.h>
+#include <logrin/Formatter/Pattern.h>
 #include <logrin/LogFactory.h>
 #include <logrin/Sinks/Console.h>
-#include <logrin/Sinks/Console/Formatter/Azalia.h>
-#include <logrin/Sinks/Console/Formatter/Json.h>
 
-using namespace logrin; // NOLINT(google-build-using-namespace)
-using namespace logrin::sinks; // NOLINT(google-build-using-namespace)
-using namespace logrin::sinks::console::formatters; // NOLINT(google-build-using-namespace)
+// NOLINTBEGIN(google-build-using-namespace)
+
+using namespace logrin;
+using namespace logrin::sinks;
+using namespace logrin::formatter;
+
+using namespace violet;
 
 auto main() -> int
 {
-    violet::SharedPtr<Console> console = std::make_shared<Console>(Console::Stream::Stdout, Azalia());
-    violet::SharedPtr<Console> console2 = std::make_shared<Console>(Console::Stream::Stderr, Json());
-    LogFactory::Init(LogLevel::Info, { console, console2 });
+    LogFactory::Init(LogLevel::Info,
+        { std::make_shared<Console>(Json()), std::make_shared<Console>(Console::Stream::Stderr, Pattern::Azalia()),
+            std::make_shared<Console>(
+                Console::Stream::Stderr, Pattern::Parse("%levelColor[%L{upper:^10}]%style:end :: %m\t%A").Unwrap()) });
 
-    auto log = LogFactory::Get("console_sink");
-    log.Info("Hello, world! (this should be emitted right away)").With("disk", "/dev/sda1");
+    auto logger = LogFactory::Get("console_sink");
+    logger.Info("Hello, world!").With("disk", "/dev/sda1");
 
-    auto number_67 = log.Fatal("this should be emitted last? 67!! haha!! funn number!!!! im not funny...");
-
+    auto _67 = logger.Fatal("im not funny");
     LogFactory::Shutdown();
 }
+
+// NOLINTEND(google-build-using-namespace)

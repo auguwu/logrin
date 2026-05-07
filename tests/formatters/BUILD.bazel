@@ -19,16 +19,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//bazel:cc.bzl", "logrin_cc_test")
 
-cc_binary(
-    name = "console_sink",
-    srcs = ["main.cc"],
-    visibility = ["//visibility:private"],
+logrin_cc_test(
+    name = "pattern",
+    srcs = ["Pattern.test.cc"],
     deps = [
-        "//src:log_factory",
-        "//src/formatters:json",
+        "//src:log_record",
         "//src/formatters:pattern",
-        "//src/sinks:console",
+        "//src/formatters/pattern:parser",
     ],
 )

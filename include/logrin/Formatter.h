@@ -19,28 +19,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <logrin/LogRecord.h>
-#include <logrin/Sinks/Console/Formatter/Json.h>
-#include <violet/Support/Demangle.h>
+#pragma once
 
-using logrin::sinks::console::formatters::Json;
+#include "detail/config.h"
 
-using violet::Int32;
+#include <violet/Violet.h>
 
-auto Json::WithIndentation(Int32 indent) noexcept -> Json&
-{
-    this->n_indent = indent;
-    return *this;
-}
+namespace logrin {
+struct LogRecord;
 
-auto Json::WithPretty(bool yes) noexcept -> Json&
-{
-    this->n_pretty = yes;
-    return *this;
-}
+/// A log record formatter for sinks.
+///
+/// Formatter defines a interface for converting [`LogRecord`]s into a string suitable. Concrete
+/// implementations decide the visual style, colourization, and structure of log messages.
+///
+/// ## Example
+/// ```cpp
+/// #include <logrin/Sinks/Console.h>
+/// #include <logrin/Formatter.h>
+/// #include <logrin/Logger.h>
+///
+/// struct MyFormatter final: public logrin::Formatter {
+///     auto Format(const logrin::LogRecord& record) const -> violet::String override {
+///         return "/* some format here */";
+///     }
+/// };
+///
+/// logrin::Logger logger("main", LogLevel::Trace);
+/// logger.AddSink<logrin::sinks::Console>(MyFormatter());
+///
+/// logger.Info("hello, world!");
+/// ```
+struct LOGRIN_API Formatter {
+    virtual ~Formatter() = default;
 
-auto Json::Format(const LogRecord& record) const noexcept -> violet::String
-{
-    auto value = record.AsJson();
-    return std::format("{}\n", value.dump(this->n_pretty ? this->n_indent : -1, ' ', true));
-}
+    /// Converts a log record into a string.
+    /// @param record the record to format
+    [[nodiscard]] virtual auto Format(const LogRecord& record) const -> violet::String = 0;
+};
+
+} // namespace logrin

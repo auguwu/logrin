@@ -25,28 +25,18 @@ package(
     default_visibility = ["//visibility:public"],
 )
 
+exports_files(glob(["*.cc"]))
+
 logrin_cc_library(
     name = "console",
     srcs = ["Console.cc"],
     hdrs = ["//include/logrin/Sinks:Console.h"],
-    visibility = ["//visibility:public"],
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/sinks:console`. It'll be removed in a 26.06 release.",
     deps = [
+        "//src:formatter",
         "//src:sink",
-        "//src/sinks/console:formatter",
         "@violet//violet",
         "@violet//violet/io:descriptor",
-    ],
-)
-
-logrin_cc_library(
-    name = "http",
-    srcs = ["Http.cc"],
-    hdrs = ["//include/logrin/Sinks:Http.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src:async_sink",
-        "@curl",
-        "@violet//violet",
     ],
 )
 
@@ -54,11 +44,19 @@ logrin_cc_library(
     name = "opentelemetry",
     srcs = ["OpenTelemetry.cc"],
     hdrs = ["//include/logrin/Sinks:OpenTelemetry.h"],
+    defines = select({
+        "//bazel/flags:opentelemetry_enabled": ["LOGRIN_FEATURE_OPENTELEMETRY"],
+        "//conditions:default": [],
+    }),
+    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/sinks:opentelemetry`. It'll be removed in a 26.06 release.",
     visibility = ["//visibility:public"],
-    deps = [
-        "//src:async_sink",
-        "@otel//api",
-        "@otel//sdk:headers",
-        "@violet//violet",
-    ],
+    deps = select({
+        "//bazel/flags:opentelemetry_enabled": [
+            "//src:async_sink",
+            "@otel//api",
+            "@otel//sdk:headers",
+            "@violet//violet",
+        ],
+        "//conditions:default": [],
+    }),
 )

@@ -23,13 +23,15 @@
 
 #include "logrin/detail/config.h"
 
+#include <logrin/Formatter.h>
 #include <logrin/Sink.h>
-#include <logrin/Sinks/Console/Formatter.h>
 #include <violet/IO/Descriptor.h>
 #include <violet/Violet.h>
 
-#ifdef VIOLET_UNIX
+#if VIOLET_PLATFORM(UNIX)
 #include <unistd.h>
+#elif VIOLET_PLATFORM(WINDOWS)
+#include <windows.h>
 #endif
 
 namespace logrin::sinks {
@@ -51,15 +53,18 @@ namespace logrin::sinks {
 /// ```cpp
 /// #include <logrin/Logger.h>
 /// #include <logrin/Sinks/Console.h>
-/// #include <logrin/Sinks/Console/Formatter/Azalia.h>
+/// #include <logrin/Formatter/Pattern.h>
 ///
-/// auto sink = new logrin::sinks::Console();
-/// sink->WithFormatter<logrin::sinks::console::formatters::Azalia>();
+/// using logrin::Logger;
+/// using logrin::sinks::Console;
+/// using logrin::formatter::Pattern;
 ///
-/// logrin::Logger logger("main", logrin::LogLevel::Trace);
-/// logger.AddSink(sink);
+/// Console console(Console::Stream::Stdout, Pattern::New<"[%t] %L: %m">());
 ///
-/// logger.Info("Hello, world!");
+/// Logger logger("main", logrin::LogLevel::Trace);
+/// logger.AddSink(std::make_shared<Console>(VIOLET_MOVE(console)));
+///
+/// logger.Info("hello, world!");
 /// ```
 struct LOGRIN_API Console final: public Sink {
     VIOLET_DISALLOW_MOVE(Console);
@@ -76,9 +81,9 @@ struct LOGRIN_API Console final: public Sink {
     VIOLET_IMPLICIT Console(Stream stream = Stream::Stdout) noexcept
         : n_stream(stream)
     {
-#ifdef VIOLET_UNIX
+#if VIOLET_PLATFORM(UNIX)
         this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
-#elif defined(VIOLET_WINDOWS)
+#elif VIOLET_PLATFORM(WINDOWS)
         this->n_descriptor = GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
 #endif
     }
@@ -86,14 +91,23 @@ struct LOGRIN_API Console final: public Sink {
     /// Creates a new console sink with a pre-defined formatter attached to it.
     /// @param args the constructor arguments for `T`.
     template<typename T>
-        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>>)
+        requires(std::derived_from<std::remove_cvref_t<T>, Formatter>)
+    VIOLET_IMPLICIT Console(T&& formatter) noexcept(std::is_nothrow_default_constructible_v<T>)
+        : Console(Stream::Stdout, VIOLET_FWD(T, formatter))
+    {
+    }
+
+    /// Creates a new console sink with a pre-defined formatter attached to it.
+    /// @param args the constructor arguments for `T`.
+    template<typename T>
+        requires(std::derived_from<std::remove_cvref_t<T>, Formatter>)
     VIOLET_IMPLICIT Console(Stream stream, T&& formatter) noexcept(std::is_nothrow_default_constructible_v<T>)
         : n_formatter(std::make_shared<T>(VIOLET_FWD(T, formatter)))
         , n_stream(stream)
     {
-#ifdef VIOLET_UNIX
+#if VIOLET_PLATFORM(UNIX)
         this->n_descriptor = stream == Console::Stream::Stdout ? STDOUT_FILENO : STDERR_FILENO;
-#elif defined(VIOLET_WINDOWS)
+#elif VIOLET_PLATFORM(WINDOWS)
         this->n_descriptor = GetStdHandle(stream == Console::Stream::Stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
 #endif
     }
@@ -126,7 +140,7 @@ struct LOGRIN_API Console final: public Sink {
     /// Replaces the current formatter for this sink.
     /// @param formatter the formatter to replace
     template<typename T>
-        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>>)
+        requires(std::derived_from<std::remove_cvref_t<T>, Formatter>)
     auto WithFormatter(T&& formatter) noexcept -> Console&
     {
         this->n_formatter = std::make_shared<T>(VIOLET_FWD(T, formatter));
@@ -140,7 +154,7 @@ struct LOGRIN_API Console final: public Sink {
     /// Replaces the current formatter for this sink to `T`.
     /// @param args constructor arguments of `T`.
     template<typename T, typename... Args>
-        requires(std::is_base_of_v<console::Formatter, std::remove_cvref_t<T>> && std::is_constructible_v<T, Args...>)
+        requires(std::derived_from<std::remove_cvref_t<T>, Formatter> && std::is_constructible_v<T, Args...>)
     auto WithFormatter(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) -> Console&
     {
         this->n_formatter = std::make_shared<T>(VIOLET_FWD(Args, args)...);
@@ -154,7 +168,7 @@ struct LOGRIN_API Console final: public Sink {
     void Flush() noexcept override;
 
 private:
-    violet::SharedPtr<console::Formatter> n_formatter;
+    violet::SharedPtr<Formatter> n_formatter;
     violet::io::FileDescriptor n_descriptor;
     Stream n_stream = Stream::Stdout;
 

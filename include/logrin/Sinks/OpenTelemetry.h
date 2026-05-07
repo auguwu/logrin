@@ -23,6 +23,8 @@
 
 #include "logrin/detail/config.h"
 
+#if LOGRIN_FEATURE(OPENTELEMETRY)
+
 #include <logrin/AsyncSink.h>
 #include <logrin/LogRecord.h>
 #include <opentelemetry/logs/log_record.h>
@@ -92,3 +94,5 @@ private:
 };
 
 } // namespace logrin::sinks
+
+#endif

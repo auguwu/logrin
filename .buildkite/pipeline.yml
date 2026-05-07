@@ -48,7 +48,7 @@ plugins: &plugins
         - USE_BAZEL_VERSION
         - CXX
         - CC
-  - "cache#1.8.1":
+  - "cache#1.10.0":
       manifest: "MODULE.bazel"
       path: "~/.cache/bazel"
       restore: pipeline
@@ -62,7 +62,7 @@ matrix_plugins: &matrix_plugins
         - USE_BAZEL_VERSION
         - CXX
         - CC
-  - "cache#1.8.1":
+  - "cache#1.10.0":
       manifest: "MODULE.bazel"
       path: "~/.cache/bazel"
       restore: pipeline

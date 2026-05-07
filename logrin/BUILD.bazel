@@ -25,37 +25,60 @@ package(
     default_visibility = ["//visibility:public"],
 )
 
-exports_files(glob(["*.cc"]))
-
 logrin_cc_library(
-    name = "error",
-    hdrs = ["//include/logrin/Formatter/Pattern:Error.h"],
-    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter/pattern:error`. It'll be removed in a 26.06 release.",
-    deps = ["@violet//violet/container"],
-)
-
-logrin_cc_library(
-    name = "parser",
-    srcs = ["Parser.cc"],
-    hdrs = ["//include/logrin/Formatter/Pattern:Parser.h"],
-    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter/pattern:parser`. It'll be removed in a 26.06 release.",
+    name = "log_record",
+    srcs = ["//src:LogRecord.cc"],
+    hdrs = ["//include/logrin:LogRecord.h"],
     deps = [
-        ":error",
-        ":segment",
-        "//src:log_record",
-        "@violet//violet:strings",
-        "@violet//violet/support:terminal",
+        "@nlohmann_json//:json",
+        "@violet//violet:source_location",
+        "@violet//violet/experimental:oneof",
+        "@violet//violet/support:demangle",
     ],
 )
 
 logrin_cc_library(
-    name = "segment",
-    srcs = ["Segment.cc"],
-    hdrs = ["//include/logrin/Formatter/Pattern:Segment.h"],
-    deprecation = "as of 26.05, this target has moved to `@logrin//logrin/formatter/pattern:segment`. It'll be removed in a 26.06 release.",
+    name = "async_sink",
+    hdrs = ["//include/logrin:AsyncSink.h"],
     deps = [
-        ":error",
-        "@violet//violet:strings",
-        "@violet//violet/container",
+        ":log_record",
+        "@violet//violet",
     ],
+)
+
+logrin_cc_library(
+    name = "sink",
+    hdrs = ["//include/logrin:Sink.h"],
+    deps = [
+        ":log_record",
+        "@violet//violet",
+    ],
+)
+
+logrin_cc_library(
+    name = "log_factory",
+    srcs = ["//src:LogFactory.cc"],
+    hdrs = ["//include/logrin:LogFactory.h"],
+    deps = [
+        ":logger",
+        "@violet//violet",
+    ],
+)
+
+logrin_cc_library(
+    name = "logger",
+    srcs = ["//src:Logger.cc"],
+    hdrs = ["//include/logrin:Logger.h"],
+    deps = [
+        ":async_sink",
+        ":sink",
+        "@violet//violet",
+        "@violet//violet:source_location",
+    ],
+)
+
+logrin_cc_library(
+    name = "formatter",
+    hdrs = ["//include/logrin:Formatter.h"],
+    deps = ["@violet//violet"],
 )

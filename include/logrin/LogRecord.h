@@ -26,7 +26,6 @@
 #include <nlohmann/json.hpp>
 #include <violet/Experimental/OneOf.h>
 #include <violet/SourceLocation.h>
-#include <violet/Violet.h>
 
 #include <chrono>
 

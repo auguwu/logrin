@@ -29,14 +29,14 @@ using logrin::LogFactory;
 using logrin::Sink;
 using violet::SharedPtr;
 using violet::Str;
+using violet::Vec;
 
 static LogFactory* instance = nullptr; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-LogFactory::LogFactory(LogLevel level, std::initializer_list<SharedPtr<Sink>> sinks,
-    std::initializer_list<SharedPtr<AsyncSink>> asyncSinks) noexcept
+LogFactory::LogFactory(LogLevel level, Vec<SharedPtr<Sink>> sinks, Vec<SharedPtr<AsyncSink>> asyncSinks)
     : n_level(level)
-    , n_sinks(sinks)
-    , n_asyncSinks(asyncSinks)
+    , n_sinks(VIOLET_MOVE(sinks))
+    , n_asyncSinks(VIOLET_MOVE(asyncSinks))
 {
 }
 
@@ -66,17 +66,34 @@ auto LogFactory::Get(Str name) noexcept -> Logger
 }
 
 void LogFactory::Init(LogLevel level, std::initializer_list<SharedPtr<Sink>> sinks,
-    std::initializer_list<SharedPtr<AsyncSink>> asyncSinks) noexcept
+    std::initializer_list<SharedPtr<AsyncSink>> asyncSinks)
 {
     if (instance != nullptr) {
         return;
     }
 
-    instance = new LogFactory(level, level == LogLevel::Off ? std::initializer_list<SharedPtr<Sink>>{} : sinks,
-        level == LogLevel::Off ? std::initializer_list<SharedPtr<AsyncSink>>{} : asyncSinks);
+    instance = new LogFactory(level, level == LogLevel::Off ? std::initializer_list<SharedPtr<Sink>>{ } : sinks,
+        level == LogLevel::Off ? std::initializer_list<SharedPtr<AsyncSink>>{ } : asyncSinks);
 }
 
-void LogFactory::Shutdown() noexcept
+void LogFactory::Init(LogLevel level, Vec<SharedPtr<Sink>> sinks, Vec<SharedPtr<AsyncSink>> asyncSinks)
+{
+    if (instance != nullptr) {
+        return;
+    }
+
+    auto sinks1 = VIOLET_MOVE(sinks);
+    auto asyncSinks1 = VIOLET_MOVE(asyncSinks);
+
+    if (level == LogLevel::Off) {
+        sinks1.clear();
+        asyncSinks1.clear();
+    }
+
+    instance = new LogFactory(level, sinks1, asyncSinks1);
+}
+
+void LogFactory::Shutdown()
 {
     if (instance == nullptr) {
         return;

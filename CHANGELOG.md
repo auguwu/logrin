@@ -6,7 +6,13 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/auguwu/logrin/compare/26.04...master>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.05.01...master>
+
+### 26.05.01
+- **LogFactory**: Added `Init` with `Vec<SharedPtr<Sink>>`/`Vec<SharedPtr<AsyncSink>>` so that it can be constructed dynamically.
+- Added `logrin/` folder when building the Bazel distribution
+
+**Git History**: <https://github.com/auguwu/logrin/compare/26.05...26.05.01>
 
 ### 26.05
 - Bump **Noelware.Violet** frameworks to 26.06.04

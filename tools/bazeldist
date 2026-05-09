@@ -37,6 +37,7 @@ dirs=(
     "bazel"
     "include"
     "src"
+    "logrin"
     "tests"
 )
 

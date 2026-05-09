@@ -26,6 +26,7 @@
 #include <logrin/Sink.h>
 
 using namespace logrin; // NOLINT(google-build-using-namespace)
+using namespace violet; // NOLINT(google-build-using-namespace)
 
 namespace {
 
@@ -55,6 +56,25 @@ TEST(LogFactory, ItWorks)
     auto async = std::make_shared<AsyncMockSink>();
 
     LogFactory::Init(LogLevel::Trace, { sink }, { async });
+
+    auto log = LogFactory::Get("logger");
+    log.Fatal("systems crashed: doin ur mom");
+
+    EXPECT_EQ(sink->Emitted, 1);
+    EXPECT_EQ(async->Enqueued, 1);
+
+    LogFactory::Shutdown();
+}
+
+TEST(LogFactory, ItWorksWithVec)
+{
+    auto sink = std::make_shared<MockSink>();
+    auto async = std::make_shared<AsyncMockSink>();
+
+    Vec<SharedPtr<Sink>> sinks({ sink });
+    Vec<SharedPtr<AsyncSink>> asyncSinks({ async });
+
+    LogFactory::Init(LogLevel::Trace, sinks, asyncSinks);
 
     auto log = LogFactory::Get("logger");
     log.Fatal("systems crashed: doin ur mom");

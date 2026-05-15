@@ -21,7 +21,7 @@
 
 bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
-bazel_dep(name = "opentelemetry-cpp", version = "1.24.0.bcr.1", repo_name = "otel")
+bazel_dep(name = "opentelemetry-cpp", version = "1.27.0", repo_name = "otel")
 bazel_dep(name = "abseil-cpp", version = "20260107.1", repo_name = "absl")
 bazel_dep(name = "violet", version = "26.06.04")
 archive_override(

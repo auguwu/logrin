@@ -22,38 +22,11 @@
 load("//bazel:cc.bzl", "logrin_cc_library")
 
 package(
-    default_visibility = ["//visibility:public"],
+    default_visibility = ["//logrin:__subpackages__"],
 )
 
 logrin_cc_library(
-    name = "console",
-    srcs = ["//src/sinks:Console.cc"],
-    hdrs = ["//include/logrin/Sinks:Console.h"],
-    deps = [
-        "//logrin:formatter",
-        "//logrin:sink",
-        "@violet//violet/experimental:mutex",
-        "@violet//violet/io:descriptor",
-    ],
-)
-
-logrin_cc_library(
-    name = "opentelemetry",
-    srcs = ["//src/sinks:OpenTelemetry.cc"],
-    hdrs = ["//include/logrin/Sinks:OpenTelemetry.h"],
-    defines = select({
-        "//bazel/flags:opentelemetry_enabled": ["LOGRIN_FEATURE_OPENTELEMETRY"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//visibility:public"],
-    deps = select({
-        "//bazel/flags:opentelemetry_enabled": [
-            "//logrin:async_sink",
-            "//logrin/detail:batcher",
-            "@otel//api",
-            "@otel//sdk:headers",
-            "@violet//violet",
-        ],
-        "//conditions:default": [],
-    }),
+    name = "batcher",
+    hdrs = ["//include/logrin/detail:Batcher.h"],
+    deps = ["@violet//violet/experimental:mutex"],
 )

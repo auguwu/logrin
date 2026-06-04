@@ -193,5 +193,4 @@ external/
 .cache/
 .direnv/
 build/
-.dist/
-logs/
+.clangd

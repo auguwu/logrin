@@ -28,86 +28,47 @@
 using logrin::sinks::OpenTelemetry;
 
 using violet::SharedPtr;
-using violet::experimental::MutexLock;
+using violet::Vec;
 
 using opentelemetry::common::SystemTimestamp;
 using opentelemetry::logs::Logger;
 using opentelemetry::logs::Provider;
 using opentelemetry::logs::Severity;
 
-OpenTelemetry::OpenTelemetry(violet::Str tag) noexcept
-    : OpenTelemetry(Provider::GetLoggerProvider()->GetLogger(tag))
+OpenTelemetry::OpenTelemetry(violet::Str tag, Options opts) noexcept
+    : OpenTelemetry(Provider::GetLoggerProvider()->GetLogger(tag), opts)
 {
 }
 
-OpenTelemetry::OpenTelemetry(SharedPtr<Logger> otel) noexcept
-    : n_running(true)
-    , n_otel(VIOLET_MOVE(otel))
+OpenTelemetry::OpenTelemetry(SharedPtr<Logger> otel, Options opts) noexcept
+    : n_otel(VIOLET_MOVE(otel))
+    , n_batcher(
+          [this](Vec<LogRecord>&& batched) -> void {
+              auto batch = VIOLET_MOVE(batched);
+              for (auto& record: batch) {
+                  this->n_otel->EmitLogRecord(this->logRecordToOpenTelemetry(record));
+              }
+          },
+          opts)
 {
-    this->n_worker = std::thread([this]() -> void { this->workerLoop(); });
-}
-
-OpenTelemetry::~OpenTelemetry()
-{
-    {
-        MutexLock lock(this->n_mux);
-        this->n_running = false;
-    }
-
-    this->n_cv.SignalAll();
-    if (this->n_worker.joinable()) {
-        this->n_worker.join();
-    }
 }
 
 void OpenTelemetry::Enqueue(const LogRecord& record)
 {
-    {
-        MutexLock lock(this->n_mux);
-        this->n_queue.push(record);
-    }
-
-    this->n_cv.Signal();
+    this->n_batcher.Push(record);
 }
 
 void OpenTelemetry::Flush() noexcept
 {
-    MutexLock lock(this->n_mux);
-    while (!this->n_queue.empty() || this->n_processing) {
-        this->n_cv.Wait(&this->n_mux);
-    }
+    this->n_batcher.Flush();
 }
 
-void OpenTelemetry::workerLoop()
-{
-    this->n_mux.Lock();
-    while (true) {
-        while (this->n_queue.empty() && this->n_running) {
-            this->n_cv.Wait(&this->n_mux);
-        }
+/*
+void OpenTelemetry::Enqueue(const LogRecord& record) { this->n_batcher.Push(record); }
+void OpenTelemetry::Flush() noexcept { this->n_batcher.Flush(); }
+// destructor, workerLoop, n_worker/n_cv/n_mux/n_queue/n_running/n_processing all gone
 
-        if (this->n_queue.empty() && !this->n_running) {
-            break;
-        }
-
-        while (!this->n_queue.empty()) {
-            LogRecord record(VIOLET_MOVE(this->n_queue.front()));
-            this->n_queue.pop();
-            this->n_processing = true;
-
-            this->n_mux.Unlock();
-
-            auto otelRecord = this->logRecordToOpenTelemetry(record);
-            this->n_otel->EmitLogRecord(VIOLET_MOVE(otelRecord));
-
-            this->n_mux.Lock();
-            this->n_processing = false;
-            this->n_cv.SignalAll();
-        }
-    }
-
-    this->n_mux.Unlock();
-}
+*/
 
 auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
     -> violet::UniquePtr<opentelemetry::logs::LogRecord>
@@ -175,6 +136,10 @@ auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
     };
 
     for (const auto& [key, value]: record.Fields) {
+        if (value.Is<violet::experimental::Mono>()) {
+            continue;
+        }
+
         log->SetAttribute(key, convertLogrinAttributeValue(value));
     }
 

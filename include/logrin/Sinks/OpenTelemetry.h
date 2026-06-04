@@ -27,12 +27,9 @@
 
 #include <logrin/AsyncSink.h>
 #include <logrin/LogRecord.h>
+#include <logrin/detail/Batcher.h>
 #include <opentelemetry/logs/log_record.h>
 #include <opentelemetry/logs/logger.h>
-#include <violet/Experimental/Mutex.h>
-
-#include <queue>
-#include <thread>
 
 namespace logrin::sinks {
 
@@ -58,11 +55,13 @@ namespace logrin::sinks {
 /// logger.AddSink(sink);
 /// ```
 struct LOGRIN_API OpenTelemetry final: public AsyncSink {
+    struct LOGRIN_API NOELDOC_SINCE("26.07") Options final: public detail::Batcher<LogRecord>::Options { };
+
     /// Constructs an `OpenTelemetry` sink by acquiring a logger from the global
     /// `LoggerProvider` using `tag` as the instrumentation-scope name.
     ///
     /// @param tag the instrumentation-scope name passed to `LoggerProvider::GetLogger`
-    VIOLET_IMPLICIT OpenTelemetry(violet::Str tag) noexcept;
+    VIOLET_IMPLICIT OpenTelemetry(violet::Str tag, Options opts = { }) noexcept;
 
     /// Constructs an `OpenTelemetry` sink from an existing logger instance.
     ///
@@ -70,7 +69,7 @@ struct LOGRIN_API OpenTelemetry final: public AsyncSink {
     /// remain valid for the lifetime of this sink.
     ///
     /// @param otel a shared pointer to a configured `opentelemetry::logs::Logger`
-    VIOLET_IMPLICIT OpenTelemetry(violet::SharedPtr<opentelemetry::logs::Logger> otel) noexcept;
+    VIOLET_IMPLICIT OpenTelemetry(violet::SharedPtr<opentelemetry::logs::Logger> otel, Options opts = { }) noexcept;
 
     ~OpenTelemetry() override;
 
@@ -81,15 +80,9 @@ struct LOGRIN_API OpenTelemetry final: public AsyncSink {
     void Flush() noexcept override;
 
 private:
-    std::thread n_worker;
-    violet::experimental::Condvar n_cv;
-    violet::experimental::Mutex n_mux;
-    std::queue<LogRecord> n_queue;
-    std::atomic<bool> n_running;
-    bool n_processing = false;
     violet::SharedPtr<opentelemetry::logs::Logger> n_otel;
+    detail::Batcher<LogRecord> n_batcher;
 
-    void workerLoop();
     auto logRecordToOpenTelemetry(const LogRecord& record) noexcept
         -> violet::UniquePtr<opentelemetry::logs::LogRecord>;
 };

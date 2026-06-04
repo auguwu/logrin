@@ -23,12 +23,12 @@ bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 bazel_dep(name = "opentelemetry-cpp", version = "1.27.0", repo_name = "otel")
 bazel_dep(name = "abseil-cpp", version = "20260526.0", repo_name = "absl")
-bazel_dep(name = "violet", version = "26.06.04")
+bazel_dep(name = "violet", version = "26.07")
 archive_override(
     module_name = "violet",
-    integrity = "sha256-m6lMMBvyzEdIfLdh8ZbBZndJSehDTuczEdj1Gw+c6e0=",
+    integrity = "sha256-/oVlbeFm40oTS/ddvu81YNCq3zyS+CCyKDyR7k2eWlY=",
     urls = [
-        # "https://artifacts.noelware.org/bazel-registry/violet/26.06.04/bazeldist.tgz",
-        "https://github.com/Noelware/violet/releases/download/26.06.04/bazeldist.tgz",
+        # "https://artifacts.noelware.org/bazel-registry/violet/26.07/bazeldist.tgz",
+        "https://github.com/Noelware/violet/releases/download/26.07/bazeldist.tgz",
     ],
 )

@@ -19,19 +19,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-VERSION = "26.06"
-DEVBUILD = False
+load("//bazel:cc.bzl", "logrin_cc_test")
 
-def encode_as_int():
-    parts = VERSION.split(".")
-    if len(parts) == 2:
-        yy, mm = parts
-        dd = "00"
-    elif len(parts) == 3:
-        yy, mm, dd = parts
-    else:
-        fail("invalid version format: %s" % VERSION)
+logrin_cc_test(
+    name = "console",
+    srcs = ["Console.test.cc"],
+    deps = [
+        "//logrin:formatter",
+        "//logrin/sinks:console",
+        "@violet//violet/filesystem:temporary",
+    ],
+)
 
-    return (int(yy) * 10000 +
-            int(mm) * 100 +
-            int(dd))
+logrin_cc_test(
+    name = "otel",
+    srcs = ["OpenTelemetry.test.cc"],
+    target_compatible_with = select({
+        "//bazel/flags:opentelemetry_enabled": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = ["//logrin/sinks:opentelemetry"],
+)

@@ -29,7 +29,7 @@
 #include <logrin/LogRecord.h>
 #include <opentelemetry/logs/log_record.h>
 #include <opentelemetry/logs/logger.h>
-#include <violet/Violet.h>
+#include <violet/Experimental/Mutex.h>
 
 #include <queue>
 #include <thread>
@@ -82,10 +82,11 @@ struct LOGRIN_API OpenTelemetry final: public AsyncSink {
 
 private:
     std::thread n_worker;
-    std::mutex n_mux;
-    std::condition_variable n_cv;
+    violet::experimental::Condvar n_cv;
+    violet::experimental::Mutex n_mux;
     std::queue<LogRecord> n_queue;
     std::atomic<bool> n_running;
+    bool n_processing = false;
     violet::SharedPtr<opentelemetry::logs::Logger> n_otel;
 
     void workerLoop();

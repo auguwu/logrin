@@ -25,8 +25,8 @@
 
 #include <logrin/Formatter.h>
 #include <logrin/Sink.h>
+#include <violet/Experimental/Mutex.h>
 #include <violet/IO/Descriptor.h>
-#include <violet/Violet.h>
 
 #if VIOLET_PLATFORM(UNIX)
 #include <unistd.h>
@@ -67,6 +67,7 @@ namespace logrin::sinks {
 /// logger.Info("hello, world!");
 /// ```
 struct LOGRIN_API Console final: public Sink {
+    VIOLET_DISALLOW_COPY_SINCE("26.06", Console);
     VIOLET_DISALLOW_MOVE(Console);
     ~Console() override = default;
 
@@ -112,31 +113,6 @@ struct LOGRIN_API Console final: public Sink {
 #endif
     }
 
-    VIOLET_IMPLICIT Console(const Console& other)
-    {
-        std::lock_guard lock(other.n_mux);
-
-        // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer)
-        this->n_descriptor = other.n_descriptor;
-        this->n_formatter = other.n_formatter;
-        this->n_stream = other.n_stream;
-        // NOLINTEND(cppcoreguidelines-prefer-member-initializer)
-    }
-
-    auto operator=(const Console& other) -> Console&
-    {
-        if (this != &other) {
-            std::lock_guard lock1(this->n_mux);
-            std::lock_guard lock2(other.n_mux);
-
-            this->n_descriptor = other.n_descriptor;
-            this->n_formatter = other.n_formatter;
-            this->n_stream = other.n_stream;
-        }
-
-        return *this;
-    }
-
     /// Replaces the current formatter for this sink.
     /// @param formatter the formatter to replace
     template<typename T>
@@ -172,7 +148,7 @@ private:
     violet::io::FileDescriptor n_descriptor;
     Stream n_stream = Stream::Stdout;
 
-    mutable violet::Mutex n_mux;
+    mutable violet::experimental::Mutex n_mux;
 };
 
 } // namespace logrin::sinks

@@ -24,11 +24,11 @@ load("//bazel:cc.bzl", "logrin_cc_test")
 logrin_cc_test(
     name = "logger",
     srcs = ["Logger.test.cc"],
-    deps = ["//src:logger"],
+    deps = ["//logrin:logger"],
 )
 
 logrin_cc_test(
     name = "log_factory",
     srcs = ["LogFactory.test.cc"],
-    deps = ["//src:log_factory"],
+    deps = ["//logrin:log_factory"],
 )

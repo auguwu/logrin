@@ -32,6 +32,7 @@ logrin_cc_library(
     deps = [
         "//logrin:formatter",
         "//logrin:sink",
+        "@violet//violet/experimental:mutex",
         "@violet//violet/io:descriptor",
     ],
 )
@@ -51,6 +52,7 @@ logrin_cc_library(
             "@otel//api",
             "@otel//sdk:headers",
             "@violet//violet",
+            "@violet//violet/experimental:synchronized",
         ],
         "//conditions:default": [],
     }),

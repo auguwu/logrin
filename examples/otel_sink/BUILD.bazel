@@ -30,8 +30,8 @@ cc_binary(
     }),
     visibility = ["//visibility:private"],
     deps = [
-        "//src:log_factory",
-        "//src/sinks:opentelemetry",
+        "//logrin:log_factory",
+        "//logrin/sinks:opentelemetry",
         "@otel//exporters/otlp:otlp_http_log_record_exporter",
     ],
 )

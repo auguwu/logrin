@@ -6,7 +6,14 @@ availableAt:
 ---
 
 ### unreleased
-**Git History**: <https://github.com/auguwu/logrin/compare/26.05.01...master>
+**Git History**: <https://github.com/auguwu/logrin/compare/26.06...master>
+
+### 26.06
+- **Console** and **OpenTelemetry** sinks now use Violet's experimental Mutex
+- Upgrade Noelware.Violet frameworks to 26.07
+- Remove deprecated target locations (`//src/...`) to `//logrin/...`
+
+**Git History**: <https://github.com/auguwu/logrin/compare/26.05.01...26.06>
 
 ### 26.05.01
 - **LogFactory**: Added `Init` with `Vec<SharedPtr<Sink>>`/`Vec<SharedPtr<AsyncSink>>` so that it can be constructed dynamically.

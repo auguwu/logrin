@@ -41,6 +41,7 @@ using violet::Int32;
 using violet::Span;
 using violet::UInt8;
 using violet::Vec;
+using violet::experimental::MutexLock;
 
 auto Console::WithStream(Console::Stream stream) noexcept -> Console&
 {
@@ -64,12 +65,10 @@ auto Console::WithStream(Console::Stream stream) noexcept -> Console&
 
 void Console::Emit(const LogRecord& record)
 {
-    if (auto* fmt = this->n_formatter.get(); this->n_descriptor.Valid()) {
+    if (auto* fmt = this->n_formatter.get(); fmt != nullptr && this->n_descriptor.Valid()) {
         auto str = fmt->Format(record);
-
         {
-            std::lock_guard lock(this->n_mux);
-
+            MutexLock lock(this->n_mux);
             Vec<UInt8> data(str.begin(), str.end());
             auto res = this->n_descriptor.Write(data);
 

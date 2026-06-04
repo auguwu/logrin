@@ -114,10 +114,10 @@ private:
 
             this->n_processing = true;
             this->n_mux.Unlock();
-
             std::invoke(this->n_consumer, VIOLET_MOVE(batch));
+
             this->n_mux.Lock();
-            this->n_processing = true;
+            this->n_processing = false;
             this->n_cv.SignalAll();
         }
 

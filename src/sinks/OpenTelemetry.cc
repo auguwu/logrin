@@ -53,6 +53,8 @@ OpenTelemetry::OpenTelemetry(SharedPtr<Logger> otel, Options opts) noexcept
 {
 }
 
+OpenTelemetry::~OpenTelemetry() = default;
+
 void OpenTelemetry::Enqueue(const LogRecord& record)
 {
     this->n_batcher.Push(record);
@@ -62,13 +64,6 @@ void OpenTelemetry::Flush() noexcept
 {
     this->n_batcher.Flush();
 }
-
-/*
-void OpenTelemetry::Enqueue(const LogRecord& record) { this->n_batcher.Push(record); }
-void OpenTelemetry::Flush() noexcept { this->n_batcher.Flush(); }
-// destructor, workerLoop, n_worker/n_cv/n_mux/n_queue/n_running/n_processing all gone
-
-*/
 
 auto OpenTelemetry::logRecordToOpenTelemetry(const LogRecord& record) noexcept
     -> violet::UniquePtr<opentelemetry::logs::LogRecord>

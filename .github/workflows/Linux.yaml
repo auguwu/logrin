@@ -78,7 +78,7 @@ jobs:
             CXX: "clang++-22"
             CC: "clang-22"
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
@@ -98,7 +98,7 @@ jobs:
             CXX: "clang++-22"
             CC: "clang-22"
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
@@ -149,7 +149,7 @@ jobs:
             CXX: ${{matrix.cxx}}
             CC: ${{matrix.cc}}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
@@ -202,7 +202,7 @@ jobs:
             CXX: ${{matrix.cxx}}
             CC: ${{matrix.cc}}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
@@ -222,7 +222,7 @@ jobs:
             CXX: "clang++-22"
             CC: "clang-22"
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - uses: bazel-contrib/setup-bazel@0.19.0
               with:
                 bazelisk-cache: true # avoid installing Bazel each time

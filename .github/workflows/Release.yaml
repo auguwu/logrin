@@ -32,7 +32,7 @@ jobs:
         runs-on: ubuntu-latest
         container:
             # TODO(@auguwu/Noel): switch to `cr.noelware.cloud/private/ci/base` once available
-            image: ghcr.io/noelware/violet/ci:clang-21
+            image: ghcr.io/noelware/violet/ci:clang-21@sha256:6b30437dc62c3017f2d45025ddd64b6b9111222601b150ff1f5fb2629ab117e5
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             - run: ./tools/bazeldist
@@ -41,7 +41,7 @@ jobs:
                 integrity=$(openssl dgst -sha256 -binary "$GITHUB_WORKSPACE/bazeldist.tgz" | openssl base64 -A | sed 's/^/sha256-/')
                 echo "integrity=$integrity" >> $GITHUB_OUTPUT
 
-            - uses: softprops/action-gh-release@v3
+            - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
               with:
                 files: ${{github.workspace}}/bazeldist.tgz
 

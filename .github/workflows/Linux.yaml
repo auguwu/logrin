@@ -66,7 +66,7 @@ jobs:
         name: "Bazel / Feature Configuration [exceptions=${{matrix.exceptions}} rtti=${{matrix.rtti}}]"
         runs-on: ubuntu-24.04
         container:
-            image: ghcr.io/noelware/violet/ci:clang-22
+            image: ghcr.io/noelware/violet/ci:clang-22@sha256:55b5910361271e14b559bf6f66048dbbf4a468d7f6e703700598854b0d916771
         strategy:
             fail-fast: false
             matrix:
@@ -91,7 +91,7 @@ jobs:
         name: "Bazel / OpenTelemetry"
         runs-on: ubuntu-24.04
         container:
-            image: ghcr.io/noelware/violet/ci:clang-22
+            image: ghcr.io/noelware/violet/ci:clang-22@sha256:55b5910361271e14b559bf6f66048dbbf4a468d7f6e703700598854b0d916771
         env:
             USE_BAZEL_VERSION: "8.6.0"
             BAZELFLAGS: "--config=ci --config=cxx26 --//bazel/flags:opentelemetry=True --action_env=CC --action_env=CXX"
@@ -215,7 +215,7 @@ jobs:
         name: "AddressSanitizer / UndefinedBehaviourSanitizer"
         runs-on: ubuntu-24.04
         container:
-            image: ghcr.io/noelware/violet/ci:clang-22
+            image: ghcr.io/noelware/violet/ci:clang-22@sha256:55b5910361271e14b559bf6f66048dbbf4a468d7f6e703700598854b0d916771
         env:
             USE_BAZEL_VERSION: "8.6.0"
             BAZELFLAGS: "--config=ci --config=cxx26 --config=asan --config=ubsan --action_env=CC --action_env=CXX --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-22 --test_env=UBSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-22"

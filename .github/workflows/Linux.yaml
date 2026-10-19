@@ -79,7 +79,7 @@ jobs:
             CC: "clang-22"
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-            - uses: bazel-contrib/setup-bazel@0.19.0
+            - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # 0.19.1
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
@@ -99,7 +99,7 @@ jobs:
             CC: "clang-22"
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-            - uses: bazel-contrib/setup-bazel@0.19.0
+            - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # 0.19.1
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
@@ -150,7 +150,7 @@ jobs:
             CC: ${{matrix.cc}}
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-            - uses: bazel-contrib/setup-bazel@0.19.0
+            - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # 0.19.1
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
@@ -203,7 +203,7 @@ jobs:
             CC: ${{matrix.cc}}
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-            - uses: bazel-contrib/setup-bazel@0.19.0
+            - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # 0.19.1
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`
@@ -223,7 +223,7 @@ jobs:
             CC: "clang-22"
         steps:
             - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-            - uses: bazel-contrib/setup-bazel@0.19.0
+            - uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # 0.19.1
               with:
                 bazelisk-cache: true # avoid installing Bazel each time
                 repository-cache: true # cache repositories in `MODULE.bazel`

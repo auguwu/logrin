@@ -64,7 +64,7 @@ jobs:
     # if anything breaks, we know where and why.
     bazel-configuration:
         name: "Bazel / Feature Configuration [exceptions=${{matrix.exceptions}} rtti=${{matrix.rtti}}]"
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/noelware/violet/ci:clang-22
         strategy:
@@ -89,7 +89,7 @@ jobs:
 
     opentelemetry:
         name: "Bazel / OpenTelemetry"
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/noelware/violet/ci:clang-22
         env:
@@ -110,7 +110,7 @@ jobs:
     # This will test compatibility between different compilers.
     bazel-compiler-support:
         name: "Bazel / Compiler Compatibility [compiler=${{matrix.compiler}}]"
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
         strategy:
@@ -162,7 +162,7 @@ jobs:
     # for most jobs that don't test this.
     bazel-cxx-standard:
         name: "Bazel / C++ Standard [compiler=${{matrix.compiler}} standard=${{matrix.cxx-standard}}]"
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/noelware/violet/ci:${{matrix.compiler}}
         strategy:
@@ -213,7 +213,7 @@ jobs:
 
     asan-ubsan:
         name: "AddressSanitizer / UndefinedBehaviourSanitizer"
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/noelware/violet/ci:clang-22
         env:
